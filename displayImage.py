@@ -3,9 +3,9 @@ import cv2
 import numpy as np
 from displayParameters import *
 
-def displayImage(fileName):
+def displayImage(arguments):
 
-    file = open(f"maze/{fileName}","r")
+    file = open(arguments[1],"r")
     mazeData = []
     for x in file:
         x = x.rstrip("\n\r")
@@ -51,7 +51,11 @@ def displayImage(fileName):
         y += (adjustedBoxWidth+border)
 
     # Display image
-    cv2.imshow("MAZE",maze)
+    if len(arguments) >= 3:
+        cv2.imshow(f"MAZE SOLUTION USING {arguments[2]}",maze)
+    else:
+        cv2.imshow("MAZE",maze)
+        
     cv2.waitKey(0)
 
 def adjustWidth(m,n):
@@ -76,12 +80,12 @@ def adjustWidth(m,n):
     elif m <= 79 and n <= 156:
         adjustedBoxWidth = 6
     else:
-        print("WARNING!!! MAZE SIZE LIMIT EXCEEDED")
+        print("\nWARNING!!! MAZE SIZE LIMIT EXCEEDED")
         return -1
     return adjustedBoxWidth
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("WARNING!!! Please mention Maze File Name")
+        print("\nWARNING!!! Please mention Maze File Name")
     else:
-        displayImage(sys.argv[1])
+        displayImage(sys.argv)
