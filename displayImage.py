@@ -40,11 +40,11 @@ def displayImage(arguments):
                 cv2.rectangle(maze,pt1,pt2,grey,-1)
             elif value == '0':
                 cv2.rectangle(maze,pt1,pt2,black,-1)
-            elif value == '5':
+            elif value == 'P':
                 cv2.rectangle(maze,pt1,pt2,yellow,-1)
-            elif value == '2':
+            elif value == 'S':
                 cv2.rectangle(maze,pt1,pt2,red,-1)
-            elif value == '9':
+            elif value == 'D':
                 cv2.rectangle(maze,pt1,pt2,green,-1)
             x += adjustedBoxWidth
         x = margin
