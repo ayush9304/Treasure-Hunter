@@ -8,7 +8,7 @@ else
     then
         echo "Displaying Maze"
         python3 displayImage.py maze/$1
-        echo "Running algorithms to find the path to the Tresure ..."
+        echo "Running algorithms to find the path to the Treasure ..."
 
         if [ -f "dfs.cpp" ]
         then

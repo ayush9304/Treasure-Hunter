@@ -5,7 +5,7 @@ IF NOT EXIST maze/%1 GOTO :filedoesnotexist
 
 ECHO Displaying Maze
 py displayImage.py maze/%1
-ECHO Running algorithms to find the path to the Tresure ...
+ECHO Running algorithms to find the path to the Treasure ...
 
 
 IF EXIST dfs.cpp (
