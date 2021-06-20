@@ -29,8 +29,8 @@
       <img src="https://i.ibb.co/qkTVTbc/vscode-installer.png" alt="vscode-installer" border="0">
     - After Installation, Open VSCode and goto *Extension* Tab and search for Python and click the first result which is developed by Microsoft (see image below) and click install
     
-        <img src="https://i.ibb.co/4R8X7G3/vscode-cpp.png" alt="vscode-cpp" border="0">
         <img src="https://i.ibb.co/9yZDK6b/vscode-python.png" alt="vscode-python" border="0">
+        <img src="https://i.ibb.co/4R8X7G3/vscode-cpp.png" alt="vscode-cpp" border="0">
      
     - Again search for C/C++ and click first result which is developed by Microsoft (see image above) and click install
 - _Step 4_: **Install MinGW C/C++ Compiler**
