@@ -80,7 +80,7 @@
 ## Contributing Guide
 
    - _Step 1_: Download Git from [https://git-scm.com/downloads](https://git-scm.com/downloads) and install it.
-   - _Step 2_: Fork this repository by clicking <img src="https://i.ibb.co/PD6HY9s/fork.png" alt="fork" border="0"> button on upper-right corner of the screen
+   - _Step 2_: Fork this repository by clicking <img src="https://i.ibb.co/PD6HY9s/fork.png" alt="fork" border="0"> button on upper-right corner of the screen in the github repository page
    - _Step 3_: Create new branch with your name (for example, see image)<br/>
         <img src="https://i.ibb.co/yW9NcJB/branch.png" alt="branch" border="0">
    - _Step 4_: Copy the forked repository link (see image)<br/>
