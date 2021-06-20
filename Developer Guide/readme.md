@@ -91,7 +91,7 @@
    - _Step 7_: Type in the terminal `git checkout <branch_name>` command and press \<enter\>.<br/>
             &nbsp;&nbsp;&nbsp;&nbsp;&emsp;&emsp;&emsp;&emsp; _Replace <branch_name> with the branch you created in step 3_
    - _Step 8_: Then type `code .` and press \<enter\> to open VSCode at this directory location.
-   - _Step 9_: Write your code, save it and [run the application](#run-the-application) to see the result.
+   - _Step 9_: Write your code, save it and [run the application](#how-to-run) to see the result.
    - _Step 10_: Then add your changes to commit by typing in the terminal `git add .` command
    - _Step 11_: Now to commit the changes type `git commit -m "<message>"` command<br/>
             &nbsp;&nbsp;&nbsp;&nbsp;&emsp;&emsp;&emsp;&emsp; _Replace the \<message\> in the command with appropriate message (like what changes you did)_
