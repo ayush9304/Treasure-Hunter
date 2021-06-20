@@ -4,14 +4,13 @@
     - [Windows](#Windows)
     - [MacOS](#MacOS)
 - [File Structure](#file-structure)
-- [Contributing Guide](contributing-guide)
 
 ## Environment Setup
 ### Windows
 
 - _Step 1_:  **Install Python**
-    - Goto [https://www.python.org/downloads/](https://www.python.org/downloads/) of the official Python website.
-    - Download the python installer for Windows and run it.
+    - Goto [https://www.python.org/downloads/](https://www.python.org/downloads/) of the official Python website
+    - Download the python installer for Windows and run it
     - Make sure to check the "_Add Python 3.x to PATH_" checkbox (see image)
       
       <a href="https://imgbb.com/"><img src="https://i.ibb.co/THkmfVP/python-installer.png" alt="python-installer" border="0"></a>
@@ -26,7 +25,6 @@
     - Make sure to check all four checkboxes (see image)
 
       <a href="https://imgbb.com/"><img src="https://i.ibb.co/qkTVTbc/vscode-installer.png" alt="vscode-installer" border="0"></a>
-      
     - After Installation, Open VSCode and goto *Extension* Tab and search for Python and click the first result which is developed by Microsoft (see image below) and click install
     
       <a href="https://imgbb.com/"><img src="https://i.ibb.co/M6JcjKW/vscode-python.png" alt="vscode-python" border="0"></a> <a href="https://imgbb.com/"><img src="https://i.ibb.co/y8dD13m/vscode-cpp.png" alt="vscode-cpp" border="0"></a><br />
@@ -70,12 +68,9 @@
    - `dfs.cpp` - C++ program that solves the maze puzzle using **DFS algorithm**
    - `displayImage.py` - Python program to show the graphical representation of maze
    - `displayParameters.py` - Python program that contains various parameters on how to show the maze
-   - `launcher.cmd` - Batch file to run this application on **Windows OS**<br>
-        - _It takes one argument 'filename' of maze which is inside ```maze``` directory_
-   - `launcher_mac.command` - Batch file to run this application on **macOS**<br>
-        - _It takes one argument 'filename' of maze which is inside ```maze``` directory_
+   - `launcher.cmd` - Batch file to run this application on **Windows OS**<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&emsp;&emsp;&emsp;&emsp; _It takes one argument 'filename' of the maze that we want to solve which is inside ```maze``` directory_
+   - `launcher_mac.command` - Shell script to run this application on **macOS**<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&emsp;&emsp;&emsp;&emsp; _It takes one argument 'filename' of the maze that we want to solve which is inside ```maze``` directory_
    - `test.cpp` - It's just a test file. **NO USE**  in this project
 
-
-
-## Contributing Guide
