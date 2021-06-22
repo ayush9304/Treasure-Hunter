@@ -19,7 +19,7 @@
       
 - _Step 2_: **Install OpenCV for Python**
     - Open Command Prompt
-    - Type in the following command: ``` pip install opencv-python ``` and press \<enter\> key
+    - Type in the following command: ``` pip3 install opencv-python ``` and press \<enter\> key
     - This will install OpenCV for Python
 - _Step 3_: **Install VSCode**
     - Goto [https://code.visualstudio.com/Download](https://code.visualstudio.com/Download) and download VSCode installer for windows.
@@ -44,7 +44,7 @@
     - Download the python installer for macOS and install it.
 - _Step 2_: **Install OpenCV for Python**
     - Open Terminal
-    - Type in the following command: ``` pip install opencv-python ``` and press \<enter\> key
+    - Type in the following command: ``` pip3 install opencv-python ``` and press \<enter\> key
     - This will install OpenCV for Python
 - _Step 2_: **Install VSCode**
     - Goto [https://code.visualstudio.com/Download](https://code.visualstudio.com/Download) and download VSCode installer for macOS.
@@ -109,4 +109,4 @@
    - _For macOS_: 
         - Open Terminal, navigate to project directory using `cd` command
         - Type `chmod +x launcher_mac.command` to give the script file permission to run
-        - Type `launcher_mac.command <maze_filename>` (e.g, `launcher_mac.command maze1.txt`)
+        - Type `./launcher_mac.command <maze_filename>` (e.g, `launcher_mac.command maze1.txt`)
