@@ -20,8 +20,6 @@ def displayImage(arguments):
     else:
         return
     
-    #print(f"height: {m}\nwidth: {n}")
-    #print(adjustedBoxWidth)
     width = (adjustedBoxWidth * n) + (2*margin)
     height = (adjustedBoxWidth * m) + (2*margin)
 
@@ -29,16 +27,14 @@ def displayImage(arguments):
 
     # Margin
     maze = drawBoundary(width,height,maze,margin)
-    #cv2.rectangle(maze,(margin,margin),((width-margin),(height-margin)),white,1)
 
-    x, y = margin, margin#+border
+    x, y = margin, margin
     for row in mazeData:
         wall = -1
         top_floor = -1
         floor = -1
         top_floor = (top_floor+1)%2
         for i, value in enumerate(row):
-            #x += border
             pt1 = (x,y)
             pt2 = ((x+adjustedBoxWidth),(y+adjustedBoxWidth))
             if value == '1':
@@ -46,69 +42,38 @@ def displayImage(arguments):
                 img = cv2.imread(f"img/walls/{wall}.png")
                 img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
-                #cv2.rectangle(maze,pt1,pt2,grey,-1)
             elif value == '0':
                 floor = (floor+1)%2
                 img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
                 img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
-                #cv2.rectangle(maze,pt1,pt2,black,-1)
             elif value == 'P':
                 cv2.rectangle(maze,pt1,pt2,yellow,-1)
             elif value == 'S':
                 s_img = cv2.imread("img/loki3_transparent.png")
                 s_img = cv2.resize(s_img,(adjustedBoxWidth,adjustedBoxWidth))
-                ##############################
-                #floor = (floor+1)%2
-                #img2 = cv2.imread(f"img/floor/{top_floor}{floor}.png")
-                #img2 = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
                 floor = (floor+1)%2
                 l_img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
                 l_img = cv2.resize(l_img,(adjustedBoxWidth,adjustedBoxWidth))
-                #x_offset=y_offset=50
-                #l_img[y_offset:y_offset+s_img.shape[0], x_offset:x_offset+s_img.shape[1]] = s_img
-                #s_img = cv2.imread("img/loki3_transparent.png", -1)
-                #y1, y2 = y_offset, y_offset + s_img.shape[0]
-                #x1, x2 = x_offset, x_offset + s_img.shape[1]
-
-                #alpha_s = s_img[:, :, 3] / 255.0
-                #alpha_l = 1.0 - alpha_s
-
-                #for c in range(0, 3):
-                #    l_img[y1:y2, x1:x2, c] = (alpha_s * s_img[:, :, c] +
-                #                            alpha_l * l_img[y1:y2, x1:x2, c])
-                ##############################
-
-                #---------------------------------
+                
                 img = addObject(l_img,s_img,10)
-                #---------------------------------
 
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
-                #cv2.rectangle(maze,pt1,pt2,red,-1)
             elif value == 'D':
 
 
                 s_img = cv2.imread("img/tessract.png")
                 s_img = cv2.resize(s_img,(adjustedBoxWidth,adjustedBoxWidth))
-                ##############################
-                #floor = (floor+1)%2
-                #img2 = cv2.imread(f"img/floor/{top_floor}{floor}.png")
-                #img2 = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
                 floor = (floor+1)%2
                 l_img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
                 l_img = cv2.resize(l_img,(adjustedBoxWidth,adjustedBoxWidth))
 
-                #---------------------------------
                 img = addObject(l_img,s_img,25)
-                #---------------------------------
 
-                #img = cv2.imread("img/tessract.jpg")
-                #img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
-                #cv2.rectangle(maze,pt1,pt2,green,-1)
             x += adjustedBoxWidth
         x = margin
-        y += (adjustedBoxWidth)#+border)
+        y += (adjustedBoxWidth)
 
     # Display image
     if len(arguments) >= 3:
@@ -146,10 +111,6 @@ def adjustWidth(m,n):
 
 
 def drawBoundary(width,height,maze,boundary):
-    #width, height = 500, 500
-    #maze = np.zeros((height,width,3),np.uint8)
-    #boundary = 10
-
     left = cv2.imread("img/boundary/0.png")
     length = (left.shape[0]//left.shape[1])*10
     left = cv2.resize(left,(boundary,length))
@@ -187,9 +148,6 @@ def drawBoundary(width,height,maze,boundary):
 
 
 def addObject(background,logo,threshold):
-    #logo = cv2.imread("loki.png")
-    #background = cv2.imread("floor.jpg")
-
     height, width, channels = logo.shape
     roi = background[0:height,0:width]
 
@@ -205,7 +163,7 @@ def addObject(background,logo,threshold):
     return background
 
 if __name__ == "__main__":
-    #if len(sys.argv) < 2:
-    #    print("\nWARNING!!! Please mention Maze File Name")
-    #else:
-    displayImage([0,"maze1.txt"])
+    if len(sys.argv) < 2:
+        print("\nWARNING!!! Please mention Maze File Name")
+    else:
+        displayImage(sys.argv)
