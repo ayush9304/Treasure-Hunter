@@ -1,5 +1,5 @@
 boxWidth = 50  # Width of square boxes inside grid
-margin = 10  # Margin around grid
+margin = 12  # Margin around grid
 border = 2  # grid thickness
 
 # COLORS
