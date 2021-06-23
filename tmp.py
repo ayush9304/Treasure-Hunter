@@ -50,7 +50,7 @@ def displayImage(arguments):
             elif value == 'P':
                 cv2.rectangle(maze,pt1,pt2,yellow,-1)
             elif value == 'S':
-                s_img = cv2.imread("img/loki3_transparent.png")
+                s_img = cv2.imread("img/loki3_transparent_resized.png")
                 s_img = cv2.resize(s_img,(adjustedBoxWidth,adjustedBoxWidth))
                 floor = (floor+1)%2
                 l_img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
