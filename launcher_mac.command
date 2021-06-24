@@ -10,20 +10,6 @@ else
         python3 displayImage.py maze/$1
         echo "Running algorithms to find the path to the Treasure ..."
 
-        if [ -f "dfs.cpp" ]
-        then
-            g++ -o dfs dfs.cpp
-            ./dfs maze/$1
-
-            if [ -f "mazeSolution/dfs/$1" ]
-            then
-                python3 displayImage.py mazeSolution/dfs/$1 DFS
-            else
-                echo "WARNING!!! Solution File not found"
-                echo "HINT: Make sure to save the solution matrix of maze puzzle at location 'mazeSolution/dfs/' with the same name (in this case '$1') in the C++ program"
-            fi
-        fi
-
         if [ -f "bfs.cpp" ]
         then
             g++ -o bfs bfs.cpp

@@ -1,11 +1,12 @@
 import sys
 import cv2
 import numpy as np
+import math
 from displayParameters import *
 
 def displayImage(arguments):
 
-    file = open(arguments[1],"r")
+    file = open(f"{arguments[1]}","r")
     mazeData = []
     for x in file:
         x = x.rstrip("\n\r")
@@ -20,69 +21,159 @@ def displayImage(arguments):
     else:
         return
     
-    #print(f"height: {m}\nwidth: {n}")
-    #print(adjustedBoxWidth)
-    width = (adjustedBoxWidth * n) + (2*margin) + ((n+1)*border)
-    height = (adjustedBoxWidth * m) + (2*margin) + ((m+1)*border)
+    width = (adjustedBoxWidth * n) + (2*margin)
+    height = (adjustedBoxWidth * m) + (2*margin)
 
     maze = np.zeros((height,width,3),np.uint8)
 
-    # Margin
-    cv2.rectangle(maze,(margin,margin),((width-margin),(height-margin)),white,-1)
+    pathFrame = []
 
-    x, y = margin, margin+border
+    # Margin
+    maze = drawBoundary(width,height,maze,margin)
+
+    x, y = margin, margin
     for row in mazeData:
-        for i, value in enumerate(row):
-            x += border
-            pt1 = (x,y)
-            pt2 = ((x+adjustedBoxWidth),(y+adjustedBoxWidth))
+        wall = -1
+        top_floor = -1
+        floor = -1
+        top_floor = (top_floor+1)%2
+        for value in row:
             if value == '1':
-                cv2.rectangle(maze,pt1,pt2,grey,-1)
-            elif value == '0':
-                cv2.rectangle(maze,pt1,pt2,black,-1)
-            elif value == 'P':
-                cv2.rectangle(maze,pt1,pt2,yellow,-1)
-            elif value == 'S':
-                cv2.rectangle(maze,pt1,pt2,red,-1)
-            elif value == 'D':
-                cv2.rectangle(maze,pt1,pt2,green,-1)
+                wall = (wall+1)%2
+                img = cv2.imread(f"img/walls/{wall}.png")
+                img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
+                maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
+            
+            elif value == '0' or value == 'P' or value == 'p':
+                floor = (floor+1)%2
+                img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
+                img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
+                maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
+                if value == 'P' or value == 'p':
+                    pathFrame.append(((int(x+(adjustedBoxWidth/2))),(int(y+(adjustedBoxWidth/2)))))
+
+            elif value == 'S' or value == 's':
+                s_img = cv2.imread("img/loki3_transparent_resized.png")
+                s_img = cv2.resize(s_img,(adjustedBoxWidth,adjustedBoxWidth))
+                floor = (floor+1)%2
+                l_img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
+                l_img = cv2.resize(l_img,(adjustedBoxWidth,adjustedBoxWidth))
+                img = addObject(l_img,s_img,10)
+                maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
+            
+            elif value == 'D' or value == 'd':
+                s_img = cv2.imread("img/tessract.png")
+                s_img = cv2.resize(s_img,(adjustedBoxWidth,adjustedBoxWidth))
+                floor = (floor+1)%2
+                l_img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
+                l_img = cv2.resize(l_img,(adjustedBoxWidth,adjustedBoxWidth))
+
+                img = addObject(l_img,s_img,25)
+
+                maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
+            
             x += adjustedBoxWidth
         x = margin
-        y += (adjustedBoxWidth+border)
+        y += (adjustedBoxWidth)
+    
+    # Draw Path
+    maze = drawPath(maze,pathFrame,adjustedBoxWidth)
 
     # Display image
     if len(arguments) >= 3:
         cv2.imshow(f"MAZE SOLUTION USING {arguments[2]}",maze)
     else:
-        cv2.imshow("MAZE",maze)
+        cv2.imshow("TREASURE HUNTER",maze)
         
     cv2.waitKey(0)
 
+
 def adjustWidth(m,n):
-    if m <= 12 and n <= 23:
+    if m <= 12 and n <= 24:
         adjustedBoxWidth = boxWidth
-    elif m <= 14 and n <= 27:
-        adjustedBoxWidth = 42
-    elif m <= 16 and n <= 33:
-        adjustedBoxWidth = 36
-    elif m <= 21 and n <= 41:
-        adjustedBoxWidth = 28
-    elif m <= 28 and n <= 57:
-        adjustedBoxWidth = 20
-    elif m <= 35 and n <= 69:
-        adjustedBoxWidth = 16
-    elif m <= 45 and n <= 89:
-        adjustedBoxWidth = 12
-    elif m <= 53 and n <= 104:
-        adjustedBoxWidth = 10
-    elif m <= 63 and n <= 125:
-        adjustedBoxWidth = 8
-    elif m <= 79 and n <= 156:
-        adjustedBoxWidth = 6
+    elif (n/m) <= 2:
+        adjustedBoxWidth = math.floor((624/m))
     else:
-        print("\nWARNING!!! MAZE SIZE LIMIT EXCEEDED")
-        return -1
+        adjustedBoxWidth = math.floor((1215/n))
     return adjustedBoxWidth
+
+
+def drawBoundary(width,height,maze,boundary):
+    left = cv2.imread("img/boundary/0.png")
+    length = (left.shape[0]//left.shape[1])*10
+    left = cv2.resize(left,(boundary,length))
+    top = cv2.rotate(left,cv2.ROTATE_90_CLOCKWISE)
+    bottom = cv2.rotate(left,cv2.ROTATE_90_COUNTERCLOCKWISE)
+    right = cv2.rotate(left,cv2.ROTATE_180)
+
+    # Drawing left & right boundary
+    n = (height//length)+1
+    overflowy = int(((height/length)-(height//length))*length)
+    y=0
+    for i in range(n):
+        if i == n-1:
+            maze[y:(y+overflowy),0:boundary,:] = left[0:overflowy,0:boundary,:]
+            maze[y:(y+overflowy),(width-boundary):width,:] = right[0:overflowy,0:boundary,:]
+        else:
+            maze[y:(y+length),0:boundary,:] = left
+            maze[y:(y+length),(width-boundary):width,:] = right
+        y = y+length
+
+    # Drawing top & bottom boundary
+    offset = boundary*.8
+    n = ((width-(2*offset))//length)+1
+    overflowx = int((((width-(2*offset))/length)-((width-(2*offset))//length))*length)
+    x=int(offset)
+    for i in range(int(n)):
+        if i == n-1:
+            maze[0:boundary,x:(x+overflowx),:] = top[0:boundary,0:overflowx,:]
+            maze[(height-boundary):height,x:(x+overflowx),:] = bottom[0:boundary,0:overflowx,:]
+        else:
+            maze[0:boundary,x:(x+length),:] = top
+            maze[(height-boundary):height,x:(x+length),:] = bottom
+        x = x+length
+    return maze
+
+
+def addObject(background,logo,threshold):
+    height, width, channels = logo.shape
+    roi = background[0:height,0:width]
+
+    logoGray = cv2.cvtColor(logo,cv2.COLOR_BGR2GRAY)
+    ret, mask = cv2.threshold(logoGray,threshold,255,cv2.THRESH_BINARY)
+    mask_inv = cv2.bitwise_not(mask)
+
+    bg = cv2.bitwise_and(roi,roi,mask=mask_inv)
+    fg = cv2.bitwise_and(logo,logo,mask=mask)
+
+    img = cv2.add(bg,fg)
+    background[0:height,0:width] = img
+    return background
+
+def drawPath(maze,points,boxWidth):
+    #points.sort()
+    if boxWidth>30:
+        lineWidth = int(.1*boxWidth)
+    elif boxWidth>20:
+        lineWidth = int(.18*boxWidth)
+    elif boxWidth>10:
+        lineWidth = int(.25*boxWidth)
+    else:
+        lineWidth = int(.32*boxWidth)
+    for i,point in enumerate(points):
+        top = (point[0],point[1]-boxWidth)
+        bottom = (point[0],point[1]+boxWidth)
+        left = (point[0]-boxWidth,point[1])
+        right = (point[0]+boxWidth,point[1])
+        if top in points[i:]:
+            cv2.line(maze,point,top,(32,248,255),lineWidth)
+        if bottom in points[i:]:
+            cv2.line(maze,point,bottom,(32,248,255),lineWidth)
+        if left in points[i:]:
+            cv2.line(maze,point,left,(32,248,255),lineWidth)
+        if right in points[i:]:
+            cv2.line(maze,point,right,(32,248,255),lineWidth)
+    return maze
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
