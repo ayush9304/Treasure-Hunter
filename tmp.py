@@ -1,6 +1,7 @@
 import sys
 import cv2
 import numpy as np
+import math
 from displayParameters import *
 
 def displayImage(arguments):
@@ -37,8 +38,6 @@ def displayImage(arguments):
         floor = -1
         top_floor = (top_floor+1)%2
         for value in row:
-            #pt1 = (x,y)
-            #pt2 = ((x+adjustedBoxWidth),(y+adjustedBoxWidth))
             if value == '1':
                 wall = (wall+1)%2
                 img = cv2.imread(f"img/walls/{wall}.png")
@@ -85,35 +84,17 @@ def displayImage(arguments):
         cv2.imshow(f"MAZE SOLUTION USING {arguments[2]}",maze)
     else:
         cv2.imshow("TREASURE HUNTER",maze)
-        cv2.imwrite("temp/maze_solution.png",maze)
         
     cv2.waitKey(0)
 
+
 def adjustWidth(m,n):
-    if m <= 12 and n <= 23:
+    if m <= 12 and n <= 24:
         adjustedBoxWidth = boxWidth
-    elif m <= 14 and n <= 27:
-        adjustedBoxWidth = 42
-    elif m <= 16 and n <= 33:
-        adjustedBoxWidth = 36
-    elif m <= 21 and n <= 41:
-        adjustedBoxWidth = 28
-    elif m <= 28 and n <= 57:
-        adjustedBoxWidth = 20
-    elif m <= 35 and n <= 69:
-        adjustedBoxWidth = 16
-    elif m <= 45 and n <= 89:
-        adjustedBoxWidth = 12
-    elif m <= 53 and n <= 104:
-        adjustedBoxWidth = 10
-    elif m <= 63 and n <= 125:
-        adjustedBoxWidth = 8
-    elif m <= 79 and n <= 156:
-        adjustedBoxWidth = 6
+    elif (n/m) <= 2:
+        adjustedBoxWidth = math.floor((624/m))
     else:
-        print(f"Maze Size: ({m},{n})")
-        print("\nWARNING!!! MAZE SIZE LIMIT EXCEEDED")
-        return -1
+        adjustedBoxWidth = math.floor((1215/n))
     return adjustedBoxWidth
 
 
