@@ -61,14 +61,13 @@
 
 ## File Structure
 
+   - `img` - Directory in which image files that are used in this project are stored
    - `maze` - Directory in which maze files are stored
    - `mazeSolution` - Directory in which solutions of maze puzzles will be stored
         - `bfs` - Directory in which solutions of maze puzzles solved using **BFS algorithm** will be stored
-        - `dfs` - Directory in which solutions of maze puzzles solved using **DFS algorithm** will be stored
    - `.gitignore` - File that contains names of directories, files & file types that will not be uploaded to github
    - `README.md` - File that introduces the project to viewers
    - `bfs.cpp` - C++ program that solves the maze puzzle using **BFS algorithm**
-   - `dfs.cpp` - C++ program that solves the maze puzzle using **DFS algorithm**
    - `displayImage.py` - Python program to show the graphical representation of maze
    - `displayParameters.py` - Python program that contains various parameters on how to show the maze
    - `launcher.cmd` - Batch file to run this application on **Windows OS**<br/>
