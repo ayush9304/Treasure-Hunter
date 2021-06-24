@@ -25,6 +25,8 @@ def displayImage(arguments):
 
     maze = np.zeros((height,width,3),np.uint8)
 
+    pathFrame = []
+
     # Margin
     maze = drawBoundary(width,height,maze,margin)
 
@@ -34,34 +36,33 @@ def displayImage(arguments):
         top_floor = -1
         floor = -1
         top_floor = (top_floor+1)%2
-        for i, value in enumerate(row):
-            pt1 = (x,y)
-            pt2 = ((x+adjustedBoxWidth),(y+adjustedBoxWidth))
+        for value in row:
+            #pt1 = (x,y)
+            #pt2 = ((x+adjustedBoxWidth),(y+adjustedBoxWidth))
             if value == '1':
                 wall = (wall+1)%2
                 img = cv2.imread(f"img/walls/{wall}.png")
                 img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
-            elif value == '0':
+            
+            elif value == '0' or value == 'P' or value == 'p':
                 floor = (floor+1)%2
                 img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
                 img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
-            elif value == 'P':
-                cv2.rectangle(maze,pt1,pt2,yellow,-1)
-            elif value == 'S':
+                if value == 'P' or value == 'p':
+                    pathFrame.append(((int(x+(adjustedBoxWidth/2))),(int(y+(adjustedBoxWidth/2)))))
+
+            elif value == 'S' or value == 's':
                 s_img = cv2.imread("img/loki3_transparent_resized.png")
                 s_img = cv2.resize(s_img,(adjustedBoxWidth,adjustedBoxWidth))
                 floor = (floor+1)%2
                 l_img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
                 l_img = cv2.resize(l_img,(adjustedBoxWidth,adjustedBoxWidth))
-                
                 img = addObject(l_img,s_img,10)
-
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
-            elif value == 'D':
-
-
+            
+            elif value == 'D' or value == 'd':
                 s_img = cv2.imread("img/tessract.png")
                 s_img = cv2.resize(s_img,(adjustedBoxWidth,adjustedBoxWidth))
                 floor = (floor+1)%2
@@ -71,15 +72,20 @@ def displayImage(arguments):
                 img = addObject(l_img,s_img,25)
 
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
+            
             x += adjustedBoxWidth
         x = margin
         y += (adjustedBoxWidth)
+    
+    # Draw Path
+    maze = drawPath(maze,pathFrame,adjustedBoxWidth)
 
     # Display image
     if len(arguments) >= 3:
         cv2.imshow(f"MAZE SOLUTION USING {arguments[2]}",maze)
     else:
         cv2.imshow("TREASURE HUNTER",maze)
+        cv2.imwrite("temp/maze_solution.png",maze)
         
     cv2.waitKey(0)
 
@@ -105,6 +111,7 @@ def adjustWidth(m,n):
     elif m <= 79 and n <= 156:
         adjustedBoxWidth = 6
     else:
+        print(f"Maze Size: ({m},{n})")
         print("\nWARNING!!! MAZE SIZE LIMIT EXCEEDED")
         return -1
     return adjustedBoxWidth
@@ -161,6 +168,31 @@ def addObject(background,logo,threshold):
     img = cv2.add(bg,fg)
     background[0:height,0:width] = img
     return background
+
+def drawPath(maze,points,boxWidth):
+    #points.sort()
+    if boxWidth>30:
+        lineWidth = int(.1*boxWidth)
+    elif boxWidth>20:
+        lineWidth = int(.18*boxWidth)
+    elif boxWidth>10:
+        lineWidth = int(.25*boxWidth)
+    else:
+        lineWidth = int(.32*boxWidth)
+    for i,point in enumerate(points):
+        top = (point[0],point[1]-boxWidth)
+        bottom = (point[0],point[1]+boxWidth)
+        left = (point[0]-boxWidth,point[1])
+        right = (point[0]+boxWidth,point[1])
+        if top in points[i:]:
+            cv2.line(maze,point,top,(32,248,255),lineWidth)
+        if bottom in points[i:]:
+            cv2.line(maze,point,bottom,(32,248,255),lineWidth)
+        if left in points[i:]:
+            cv2.line(maze,point,left,(32,248,255),lineWidth)
+        if right in points[i:]:
+            cv2.line(maze,point,right,(32,248,255),lineWidth)
+    return maze
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
