@@ -11,7 +11,7 @@ ECHO Running algorithms to find the path to the Treasure ...
 :bfs
 IF EXIST bfs.cpp (
     g++ -o bfs bfs.cpp
-    bfs maze/%1
+    bfs %1
     IF EXIST mazeSolution/bfs/%1 (
         py displayImage.py mazeSolution/bfs/%1 BFS
         GOTO :next
