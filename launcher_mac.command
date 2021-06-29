@@ -13,7 +13,7 @@ else
         if [ -f "bfs.cpp" ]
         then
             g++ -o bfs bfs.cpp
-            ./bfs maze/$1
+            ./bfs $1
             if [ -f "mazeSolution/bfs/$1" ]
             then
                 python3 displayImage.py mazeSolution/bfs/$1 BFS
