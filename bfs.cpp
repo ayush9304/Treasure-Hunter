@@ -51,8 +51,8 @@ public:
 class Maze{
 
 public:
-    vector<vector<char>> matrix;
-    vector<vector<int>> visited;
+    vector<vector<char> > matrix;
+    vector<vector<int> > visited;
     int row;
     int column;
     Coordinate start;
