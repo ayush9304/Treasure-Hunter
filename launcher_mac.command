@@ -12,7 +12,7 @@ else
 
         if [ -f "bfs.cpp" ]
         then
-            g++ -o bfs bfs.cpp
+            g++ -std=c++11 -o bfs bfs.cpp
             ./bfs $1
             if [ -f "mazeSolution/bfs/$1" ]
             then
