@@ -60,7 +60,7 @@ public:
     string filename;
 
     void load(){
-        string fileaddress = "../maze/" + filename;
+        string fileaddress = "maze/" + filename;
         ifstream file(fileaddress);
         if (!file){
             throw invalid_argument("No file found!");
@@ -80,12 +80,12 @@ public:
             matrix.push_back(tmp);
         }
 
-        for (int i = 0; i < matrix.size(); ++i) {
+        /*for (int i = 0; i < matrix.size(); ++i) {
             cout<<"\n";
             for (int j = 0; j < matrix[i].size(); ++j) {
                 cout<<matrix[i][j];
             }
-        }
+        }*/
 
 
         row = matrix.size();
@@ -139,7 +139,7 @@ public:
     }
 
     void writeSolution(){
-        string fileaddress = "../mazeSolution/bfs/" + filename;
+        string fileaddress = "mazeSolution/bfs/" + filename;
         ofstream fw(fileaddress, ofstream::out);
 
         if (!fw.is_open()){
@@ -161,7 +161,8 @@ public:
 };
 
 int main(int argc, char** argv){
-
+    
+    cout<<"\nSolving using BFS algorithm.\n";
     Queue queue;
     Maze maze;
     maze.filename = argv[1];
@@ -182,7 +183,7 @@ int main(int argc, char** argv){
                 *temp = {neighbour, current};
                 queue.add(temp);
                 maze.visited[neighbour.y][neighbour.x] = 1;
-                cout<<neighbour.y<<","<<neighbour.x;
+                //cout<<neighbour.y<<","<<neighbour.x;
                 if (maze.goal.x == neighbour.x && maze.goal.y == neighbour.y){
                     goal = *temp;
                     break;
