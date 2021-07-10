@@ -9,7 +9,7 @@ def displayImage(arguments):
     file = open(f"{arguments[1]}","r")
     mazeData = []
     for x in file:
-        x = x.rstrip("\n\r")
+        x = x.strip()
         x = x.split(" ")
         mazeData.append(x)
     file.close()
