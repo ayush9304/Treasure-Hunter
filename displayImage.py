@@ -77,9 +77,6 @@ def generateImage(mazeData, path_list=None):
             x += adjustedBoxWidth
         x = margin
         y += (adjustedBoxWidth)
-    
-    # Draw Path
-    #maze = drawPath(maze,pathFrame)
 
     maze2 = maze.copy()
     if s_x is not None and  s_y is not None:
@@ -87,20 +84,20 @@ def generateImage(mazeData, path_list=None):
 
     ####################################################################################
     if to_animate:
-        animate(maze2, s_loki, path_list, 11, adjustedBoxWidth)
+        animate(maze2, s_loki, path_list, steps, adjustedBoxWidth)
     ####################################################################################
 
     else:
-        return maze, maze2
+        return maze, maze2, s_loki, adjustedBoxWidth
         
 
 
 def adjustBoxWidth(width, height):
-    if width >= 100 or height >= 80:
-        return int(boxWidth/2)
-    elif width >= 60 or height >= 50:
+    if width >= 95 or height >= 67:
+        return int(boxWidth/2.2)
+    elif width >= 67 or height >= 50:
         return int(boxWidth/1.85)
-    elif width >= 50 or height >= 40:
+    elif width >= 50 or height >= 39:
         return int(boxWidth/1.6666)
     else:
         return boxWidth
@@ -157,31 +154,6 @@ def addObject(background,logo,threshold):
     background[0:height,0:width] = img
     return background
 
-'''def drawPath(maze,points):
-    #points.sort()
-    if adjustedBoxWidth>30:
-        lineWidth = int(.06*adjustedBoxWidth)
-    elif adjustedBoxWidth>20:
-        lineWidth = int(.15*adjustedBoxWidth)
-    elif adjustedBoxWidth>10:
-        lineWidth = int(.22*adjustedBoxWidth)
-    else:
-        lineWidth = int(.28*adjustedBoxWidth)
-    for i,point in enumerate(points):
-        top = (point[0],point[1]-adjustedBoxWidth)
-        bottom = (point[0],point[1]+adjustedBoxWidth)
-        left = (point[0]-adjustedBoxWidth,point[1])
-        right = (point[0]+adjustedBoxWidth,point[1])
-        if top in points[i:]:
-            cv2.line(maze,point,top,(14,255,183),lineWidth)
-        if bottom in points[i:]:
-            cv2.line(maze,point,bottom,(14,255,183),lineWidth)
-        if left in points[i:]:
-            cv2.line(maze,point,left,(14,255,183),lineWidth)
-        if right in points[i:]:
-            cv2.line(maze,point,right,(14,255,183),lineWidth)
-    return maze'''
-
 
 def animate(maze, loki, path, steps, adjustedBoxWidth):
     path = calculatePoints(path, adjustedBoxWidth)
@@ -206,11 +178,12 @@ def animate(maze, loki, path, steps, adjustedBoxWidth):
             #################################
             roi = maze[(y-width):(y+width), (x-width):(x+width), :]
             result = addObject(roi.copy(),floki,10)
+            cv2.line(maze, point, (x,y), (245,117,170), 2)
             fmaze = maze.copy()
             fmaze[(y-width):(y+width), (x-width):(x+width), :] = result
             #################################
             cv2.imshow("TREASURE HUNTER",fmaze)
-            k = cv2.waitKey(5)
+            k = cv2.waitKey(13)
             if k == ord('q'):
                 cv2.destroyAllWindows()
                 return
