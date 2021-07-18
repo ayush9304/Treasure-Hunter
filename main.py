@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
             self.ui.solveMazeBtn.setEnabled(True)
             return
         elif self.maze_ws is None:
-            popup("Maze data has been corrupted.\nPlease regenerate maze.","Critical")
+            popup("Maze data has been corrupted.\nPlease regenerate maze.","Information")
             self.ui.solveMazeBtn.setEnabled(True)
             return
 
@@ -68,6 +68,10 @@ class MainWindow(QMainWindow):
             popup("Width / Height value of maze should be atleast 3","Information")
             self.ui.generateMazeBtn.setEnabled(True)
             return
+        elif(width*height > 15000):
+            popup("Exceeded maximum maze size limit\nPlease reduce the size of maze","Information")
+            self.ui.generateMazeBtn.setEnabled(True)
+            return
 
         self.ui.displayMazeLabel.setText('<p style="font-size:11pt;">Generating maze...</font>')
 
@@ -79,10 +83,7 @@ class MainWindow(QMainWindow):
         
         if fromf == "generator":
             if error:
-                if whatError == "RecursionError":
-                    popup("Exceeded maximum maze size limit\nPlease reduce the size of maze","Critical")
-                else:
-                    popup(whatError,"Critical")
+                popup(whatError,"Information")
                 self.ui.generateMazeBtn.setEnabled(True)
             else:
                 self.ui.generateMazeBtn.setEnabled(True)
@@ -102,7 +103,7 @@ class MainWindow(QMainWindow):
                 self.mazeMatrix = mazeMatrix
         elif fromf == 'solver':
             if error:
-                popup(whatError,"Critical")
+                popup(whatError,"Information")
                 self.ui.solveMazeBtn.setEnabled(True)
             else:
                 if lastResponse:
@@ -142,17 +143,15 @@ class generateMazeWorker(QThread):
     
     def run(self):
         try:
-            start = time.time()
+            # Increase Recursion Limit -------------v
+            sys.setrecursionlimit(2000)
+            # --------------------------------------^
             
             mazeClass = mazeGenerator.Maze(self.width, self.height)
             self.mazeMatrix = mazeClass.matrix()
             
             self.maze, self.maze_ws, self.loki, self.boxWidth = generateImage(self.mazeMatrix)
             self.response.emit(False, None, self.maze, 'generator', True, self.mazeMatrix, self.maze, self.maze_ws, self.loki, self.boxWidth)
-            end = time.time()
-            print(f"Generate Maze Time: {end-start}s")
-        except RecursionError:
-            self.response.emit(True, "RecursionError", None, "generator", None, None, None, None, None, None)
         except Exception as e:
             self.response.emit(True, str(e), None, "generator", None, None, None, None, None, None)
 
@@ -171,59 +170,85 @@ class solveMazeWorker(QThread):
         self.loki = loki
         self.steps = steps
         self.stopFlag = False
+        self.delay = 13
 
     def run(self):
         try:
-            start = time.time()
-        
             row = len(self.mazeMatrix)
             col = len(self.mazeMatrix[1])
             _, self.path = bfs.bfs(self.mazeMatrix.copy(), row, col)
+            if self.path is None:
+                self.response.emit(True, "There is no path to the Treasure.", None, 'solver', None)
+                self.stopFlag = True
+            else:
+                self.delay, self.steps = self.speed(len(self.path))
+                print(len(self.path),self.delay,self.steps)
+                self.path_points = self.calculatePoints()
+                depth = self.margin-2
+                width = (self.boxWidth>>1)+depth
+                fmaze = None
+                floki = np.zeros((self.loki.shape[0]+(depth<<1), self.loki.shape[1]+(depth<<1), 3), np.uint8)
+                floki[depth:(depth+self.loki.shape[0]), depth:(depth+self.loki.shape[1]), :] = self.loki
+                for dir, point, dst in self.path_points:
+                    if not self.stopFlag:
+                        shift = (dst*self.boxWidth)//int(self.steps)
+                        x, y = point
 
-            self.path_points = self.calculatePoints()
-            depth = self.margin-2
-            width = (self.boxWidth>>1)+depth
-            fmaze = None
-            floki = np.zeros((self.loki.shape[0]+(depth<<1), self.loki.shape[1]+(depth<<1), 3), np.uint8)
-            floki[depth:(depth+self.loki.shape[0]), depth:(depth+self.loki.shape[1]), :] = self.loki
-            for dir, point, dst in self.path_points:
-                if not self.stopFlag:
-                    shift = (dst*self.boxWidth)//self.steps
-                    x, y = point
+                        for i in range(self.steps):
+                            if dir == 'left':
+                                x = x-shift
+                            if dir == 'right':
+                                x = x+shift
+                            if dir == 'up':
+                                y = y-shift
+                            elif dir == 'down':
+                                y = y+shift
 
-                    for i in range(self.steps):
-                        if dir == 'left':
-                            x = x-shift
-                        if dir == 'right':
-                            x = x+shift
-                        if dir == 'up':
-                            y = y-shift
-                        elif dir == 'down':
-                            y = y+shift
-
-                        roi = self.maze[(y-width):(y+width), (x-width):(x+width), :]
-                        result = addObject(roi.copy(),floki,10)
-                        cv2.line(self.maze, point, (x,y), (245,117,170), 2)
-                        fmaze = self.maze.copy()
-                        fmaze[(y-width):(y+width), (x-width):(x+width), :] = result
+                            roi = self.maze[(y-width):(y+width), (x-width):(x+width), :]
+                            result = addObject(roi.copy(),floki,10)
+                            cv2.line(self.maze, point, (x,y), (245,117,170), 2)
+                            fmaze = self.maze.copy()
+                            fmaze[(y-width):(y+width), (x-width):(x+width), :] = result
                 
-                        if not self.stopFlag:
-                            self.response.emit(False, None, fmaze, 'solver', False)
-                            cv2.waitKey(13)
-                        else:
-                            return
-                else:
-                    return
+                            if not self.stopFlag:
+                                self.response.emit(False, None, fmaze, 'solver', False)
+                                cv2.waitKey(self.delay)
+                            else:
+                                return
+                    else:
+                        return
             
             if not self.stopFlag:
                 self.response.emit(False, None, fmaze, 'solver', True)
 
-                end = time.time()
-                print(f"Solve Maze Time: {(end-start)}")
         except Exception as e:
             self.response.emit(True, str(e), None, 'solver', None)
         
         self.stop()
+
+    def speed(self,length):
+        if length <= 135:
+            return 13,11
+        elif length < 270:
+            return 10,11
+        elif length < 380:
+            return 7,11
+        elif length < 500:
+            return 4,10
+        elif length < 670:
+            return 3,10
+        elif length < 800:
+            return 2,9
+        elif length < 950:
+            return 1,7
+        elif length < 1050:
+            return 1,6
+        elif length < 1200:
+            return 1,5
+        elif length < 1500:
+            return 1,3
+        else:
+            return 1,2
 
     def calculatePoints(self):
         points = []

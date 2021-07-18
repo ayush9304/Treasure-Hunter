@@ -115,7 +115,7 @@ def bfs(matrix, row, column):
                     break
 
     if goal.state.x == -1 or goal.state.y == -1:
-        raise Exception("No solution found!")
+        return None, None
     else:
         current = goal
         while current.previous is not None:
@@ -139,12 +139,15 @@ if __name__ == "__main__":
     matrix = maze.matrix()
     solutionMatrix, path = bfs(matrix, row, column)
 
-    for w in solutionMatrix:
-        for x in w:
-            print(x, end=" ")
-        print("")
+    if solutionMatrix is None:
+        print("No Solution Found!")
+    else:
+        for w in solutionMatrix:
+            for x in w:
+                print(x, end=" ")
+            print("")
 
-    print("\n")
-    path = list(path)
-    for elem in path:
-        print(elem)
+        print("\n")
+        path = list(path)
+        for elem in path:
+            print(elem)

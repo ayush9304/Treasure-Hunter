@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ui_designweMjqS.ui'
+## Form generated from reading UI file 'ui_designOZDCHs.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.1.2
 ##
@@ -244,13 +244,15 @@ class Ui_MainWindow(object):
         self.width_input.setGeometry(QRect(20, 50, 221, 31))
         self.width_input.setFocusPolicy(Qt.WheelFocus)
         self.width_input.setInputMethodHints(Qt.ImhDigitsOnly)
-        self.width_input.setClearButtonEnabled(False)
+        self.width_input.setCursorMoveStyle(Qt.VisualMoveStyle)
+        self.width_input.setClearButtonEnabled(True)
         self.height_input = QLineEdit(self.groupBox)
         self.height_input.setObjectName(u"height_input")
         self.height_input.setGeometry(QRect(20, 140, 221, 31))
         self.height_input.setFocusPolicy(Qt.WheelFocus)
         self.height_input.setInputMethodHints(Qt.ImhDigitsOnly)
-        self.height_input.setClearButtonEnabled(False)
+        self.height_input.setCursorMoveStyle(Qt.VisualMoveStyle)
+        self.height_input.setClearButtonEnabled(True)
         self.groupBox_2 = QGroupBox(self.centralwidget)
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.groupBox_2.setGeometry(QRect(990, 340, 261, 121))
