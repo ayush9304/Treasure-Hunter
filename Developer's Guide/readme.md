@@ -60,6 +60,7 @@
 
    - `img` - Directory in which image files that are used in this project are stored
    - `.gitignore` - File that contains names of directories, files & file types that will not be uploaded to github
+   - `Collaborators.md` - File contains list of all collaborators in this project.
    - `README.md` - File that introduces the project to viewers
    - `bfs.py` - Python program that solves the maze puzzle using **BFS algorithm**
    - `displayImage.py` - Python program to show the graphical representation of maze
