@@ -32,13 +32,13 @@ def generateImage(mazeData, path_list=None):
         floor = -1
         top_floor = (top_floor+1)%2
         for value in row:
-            if value == 1:
+            if value == '1':
                 wall = (wall+1)%2
                 img = cv2.imread(f"img/walls/{wall}.png")
                 img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
             
-            elif value == 0 or value == 'P' or value == 'p':
+            elif value == '0' or value == 'P' or value == 'p':
                 floor = (floor+1)%2
                 img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
                 img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))

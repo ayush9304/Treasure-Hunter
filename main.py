@@ -11,7 +11,8 @@ from PySide6.QtCore import QThread, Signal, QSize, QCoreApplication
 from ui_design import Ui_MainWindow
 from displayImage import generateImage, addObject
 import displayParameters
-from recursiveBacktracking import Maze
+import mazeGenerator
+import bfs
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -28,6 +29,7 @@ class MainWindow(QMainWindow):
         self.mazeMatrix = None
         self.maze = None
         self.maze_ws = None
+        self.disp_maze = None
         self.loki = None
         self.margin = displayParameters.margin
         self.steps = displayParameters.steps
@@ -85,14 +87,14 @@ class MainWindow(QMainWindow):
             else:
                 self.ui.generateMazeBtn.setEnabled(True)
                 self.generatorWorker.stop()
-                '''
+                
                 try:
                     if self.solverWorker:
-                        self.solverWorker.terminate()
+                        self.solverWorker.stopFlag = True
                         self.ui.solveMazeBtn.setEnabled(True)
                 except:
                     pass
-                '''
+                
                 self.maze = maze
                 self.maze_ws = maze_ws
                 self.loki = loki
@@ -107,10 +109,13 @@ class MainWindow(QMainWindow):
                     self.ui.solveMazeBtn.setEnabled(True)
         
         if disp_maze is None:
-            if self.maze is None:
-                self.ui.displayMazeLabel.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-weight:700; color:#ff79c6;\">TREASURE HUNTER</span></p></body></html>", None))
+            if self.disp_maze is None:
+                if self.maze is None:
+                    self.ui.displayMazeLabel.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-weight:700; color:#ff79c6;\">TREASURE HUNTER</span></p></body></html>", None))
+                else:
+                    disp_maze = self.maze.copy()
             else:
-                disp_maze = self.maze.copy()
+                disp_maze = self.disp_maze.copy()
         
         self.disp_maze = disp_maze
         img = QImage(self.disp_maze,self.disp_maze.shape[1],self.disp_maze.shape[0],self.disp_maze.strides[0],QImage.Format_BGR888)
@@ -138,14 +143,10 @@ class generateMazeWorker(QThread):
     def run(self):
         try:
             start = time.time()
-            # Random maze generator will be inserted below
-            ###############################################################################---v
-            #from game import getMazeData
-            #self.mazeMatrix = getMazeData()
-            mazeClass = Maze(self.width, self.height)
-            mazeClass.create_maze(2,2)
-            self.mazeMatrix = mazeClass.getMatrix()
-            ###############################################################################---^
+            
+            mazeClass = mazeGenerator.Maze(self.width, self.height)
+            self.mazeMatrix = mazeClass.matrix()
+            
             self.maze, self.maze_ws, self.loki, self.boxWidth = generateImage(self.mazeMatrix)
             self.response.emit(False, None, self.maze, 'generator', True, self.mazeMatrix, self.maze, self.maze_ws, self.loki, self.boxWidth)
             end = time.time()
@@ -169,15 +170,15 @@ class solveMazeWorker(QThread):
         self.margin = margin
         self.loki = loki
         self.steps = steps
+        self.stopFlag = False
 
     def run(self):
         try:
             start = time.time()
-            # BFS maze solver will be inserted below
-            ###############################################################################---v
-            from game import getPath
-            self.path = getPath()
-            ###############################################################################---^
+        
+            row = len(self.mazeMatrix)
+            col = len(self.mazeMatrix[1])
+            _, self.path = bfs.bfs(self.mazeMatrix.copy(), row, col)
 
             self.path_points = self.calculatePoints()
             depth = self.margin-2
@@ -186,31 +187,39 @@ class solveMazeWorker(QThread):
             floki = np.zeros((self.loki.shape[0]+(depth<<1), self.loki.shape[1]+(depth<<1), 3), np.uint8)
             floki[depth:(depth+self.loki.shape[0]), depth:(depth+self.loki.shape[1]), :] = self.loki
             for dir, point, dst in self.path_points:
-                shift = (dst*self.boxWidth)//self.steps
-                x, y = point
+                if not self.stopFlag:
+                    shift = (dst*self.boxWidth)//self.steps
+                    x, y = point
 
-                for i in range(self.steps):
-                    if dir == 'left':
-                        x = x-shift
-                    if dir == 'right':
-                        x = x+shift
-                    if dir == 'up':
-                        y = y-shift
-                    elif dir == 'down':
-                        y = y+shift
+                    for i in range(self.steps):
+                        if dir == 'left':
+                            x = x-shift
+                        if dir == 'right':
+                            x = x+shift
+                        if dir == 'up':
+                            y = y-shift
+                        elif dir == 'down':
+                            y = y+shift
 
-                    roi = self.maze[(y-width):(y+width), (x-width):(x+width), :]
-                    result = addObject(roi.copy(),floki,10)
-                    cv2.line(self.maze, point, (x,y), (245,117,170), 2)
-                    fmaze = self.maze.copy()
-                    fmaze[(y-width):(y+width), (x-width):(x+width), :] = result
+                        roi = self.maze[(y-width):(y+width), (x-width):(x+width), :]
+                        result = addObject(roi.copy(),floki,10)
+                        cv2.line(self.maze, point, (x,y), (245,117,170), 2)
+                        fmaze = self.maze.copy()
+                        fmaze[(y-width):(y+width), (x-width):(x+width), :] = result
                 
-                    self.response.emit(False, None, fmaze, 'solver', False)
-                    cv2.waitKey(13)
-            self.response.emit(False, None, fmaze, 'solver', True)
+                        if not self.stopFlag:
+                            self.response.emit(False, None, fmaze, 'solver', False)
+                            cv2.waitKey(13)
+                        else:
+                            return
+                else:
+                    return
+            
+            if not self.stopFlag:
+                self.response.emit(False, None, fmaze, 'solver', True)
 
-            end = time.time()
-            print(f"Solve Maze Time: {(end-start)}")
+                end = time.time()
+                print(f"Solve Maze Time: {(end-start)}")
         except Exception as e:
             self.response.emit(True, str(e), None, 'solver', None)
         

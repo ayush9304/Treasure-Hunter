@@ -1,4 +1,4 @@
-import generate
+import mazeGenerator
 
 class Queue:
     def __init__(self):
@@ -122,27 +122,29 @@ def bfs(matrix, row, column):
             path.append((current.state.x, current.state.y))
             maze.matrix[current.state.y][current.state.x] = 'P'
             current = queue.list[current.previous]
-        path.append((maze.start.x, maze.start.y))
+        path.append((int(maze.start.x), int(maze.start.y)))
         maze.matrix[maze.start.y][maze.start.x] = 'S'
         maze.matrix[maze.goal.y][maze.goal.x] = 'D'
 
-    return maze.matrix, reversed(path)
+    path = list(reversed(path))
+    del path[-1]
+    return maze.matrix, path
 
 
+if __name__ == "__main__":
+    row = 15
+    column = 25
+    maze = mazeGenerator.Maze(column, row)
 
-row = 15
-column = 25
-maze = generate.Maze(column, row)
+    matrix = maze.matrix()
+    solutionMatrix, path = bfs(matrix, row, column)
 
-matrix = maze.matrix()
-solutionMatrix, path = bfs(matrix, row, column)
+    for w in solutionMatrix:
+        for x in w:
+            print(x, end=" ")
+        print("")
 
-for w in solutionMatrix:
-    for x in w:
-        print(x, end=" ")
-    print("")
-
-print("\n")
-
-for elem in path:
-    print(elem)
+    print("\n")
+    path = list(path)
+    for elem in path:
+        print(elem)
