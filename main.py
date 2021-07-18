@@ -182,7 +182,6 @@ class solveMazeWorker(QThread):
                 self.stopFlag = True
             else:
                 self.delay, self.steps = self.speed(len(self.path))
-                print(len(self.path),self.delay,self.steps)
                 self.path_points = self.calculatePoints()
                 depth = self.margin-2
                 width = (self.boxWidth>>1)+depth
