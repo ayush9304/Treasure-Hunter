@@ -96,7 +96,7 @@ def adjustBoxWidth(width, height):
     if width >= 95 or height >= 67:
         return int(boxWidth/2.2)
     elif width >= 67 or height >= 50:
-        return int(boxWidth/1.85)
+        return int(boxWidth/1.78)
     elif width >= 50 or height >= 39:
         return int(boxWidth/1.6666)
     else:

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ui_designFsNPnT.ui'
+## Form generated from reading UI file 'ui_designweMjqS.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.1.2
 ##
@@ -230,6 +230,9 @@ class Ui_MainWindow(object):
         font1.setPointSize(10)
         font1.setBold(True)
         self.generateMazeBtn.setFont(font1)
+        self.generateMazeBtn.setFocusPolicy(Qt.WheelFocus)
+        self.generateMazeBtn.setAutoDefault(True)
+        self.generateMazeBtn.setFlat(False)
         self.height_label = QLabel(self.groupBox)
         self.height_label.setObjectName(u"height_label")
         self.height_label.setGeometry(QRect(20, 110, 221, 31))
@@ -239,11 +242,13 @@ class Ui_MainWindow(object):
         self.width_input = QLineEdit(self.groupBox)
         self.width_input.setObjectName(u"width_input")
         self.width_input.setGeometry(QRect(20, 50, 221, 31))
+        self.width_input.setFocusPolicy(Qt.WheelFocus)
         self.width_input.setInputMethodHints(Qt.ImhDigitsOnly)
         self.width_input.setClearButtonEnabled(False)
         self.height_input = QLineEdit(self.groupBox)
         self.height_input.setObjectName(u"height_input")
         self.height_input.setGeometry(QRect(20, 140, 221, 31))
+        self.height_input.setFocusPolicy(Qt.WheelFocus)
         self.height_input.setInputMethodHints(Qt.ImhDigitsOnly)
         self.height_input.setClearButtonEnabled(False)
         self.groupBox_2 = QGroupBox(self.centralwidget)
@@ -329,9 +334,18 @@ class Ui_MainWindow(object):
         self.solveMazeBtn.setObjectName(u"solveMazeBtn")
         self.solveMazeBtn.setGeometry(QRect(20, 50, 221, 31))
         self.solveMazeBtn.setFont(font1)
+        self.solveMazeBtn.setFocusPolicy(Qt.WheelFocus)
+        self.solveMazeBtn.setAutoDefault(True)
         MainWindow.setCentralWidget(self.centralwidget)
+        QWidget.setTabOrder(self.width_input, self.height_input)
+        QWidget.setTabOrder(self.height_input, self.generateMazeBtn)
+        QWidget.setTabOrder(self.generateMazeBtn, self.solveMazeBtn)
 
         self.retranslateUi(MainWindow)
+
+        self.generateMazeBtn.setDefault(False)
+        self.solveMazeBtn.setDefault(False)
+
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -340,6 +354,9 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Treasure Hunter", None))
         self.displayMazeLabel.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-weight:700; color:#ff79c6;\">TREASURE HUNTER</span></p></body></html>", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Maze Generator", None))
+#if QT_CONFIG(tooltip)
+        self.generateMazeBtn.setToolTip("")
+#endif // QT_CONFIG(tooltip)
         self.generateMazeBtn.setText(QCoreApplication.translate("MainWindow", u"Generate", None))
         self.height_label.setText(QCoreApplication.translate("MainWindow", u"Height", None))
         self.width_label.setText(QCoreApplication.translate("MainWindow", u"Width", None))

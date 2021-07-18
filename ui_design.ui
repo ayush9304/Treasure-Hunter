@@ -857,8 +857,23 @@ QLineEdit:focus {
        <bold>true</bold>
       </font>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::WheelFocus</enum>
+     </property>
+     <property name="toolTip">
+      <string/>
+     </property>
      <property name="text">
       <string>Generate</string>
+     </property>
+     <property name="autoDefault">
+      <bool>true</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QLabel" name="height_label">
@@ -896,6 +911,9 @@ QLineEdit:focus {
        <height>31</height>
       </rect>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::WheelFocus</enum>
+     </property>
      <property name="inputMethodHints">
       <set>Qt::ImhDigitsOnly</set>
      </property>
@@ -911,6 +929,9 @@ QLineEdit:focus {
        <width>221</width>
        <height>31</height>
       </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::WheelFocus</enum>
      </property>
      <property name="inputMethodHints">
       <set>Qt::ImhDigitsOnly</set>
@@ -1527,13 +1548,28 @@ QLineEdit:focus {
        <bold>true</bold>
       </font>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::WheelFocus</enum>
+     </property>
      <property name="text">
       <string>Solve</string>
+     </property>
+     <property name="autoDefault">
+      <bool>true</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
      </property>
     </widget>
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>width_input</tabstop>
+  <tabstop>height_input</tabstop>
+  <tabstop>generateMazeBtn</tabstop>
+  <tabstop>solveMazeBtn</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

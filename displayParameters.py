@@ -1,5 +1,5 @@
 boxWidth = 50   # Width of square boxes inside grid
-margin = 12   # Margin around grid
+margin = 15   # Margin around grid
 border = 2   # grid thickness
 steps = 11   # no. of loki movement b/w two maze boxes in animation 
 

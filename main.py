@@ -3,14 +3,15 @@ import cv2
 import numpy as np
 import time
 
-from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtGui import QPixmap, QImage, QIntValidator
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtGui import QPixmap, QImage, QIntValidator, QIcon
 from PySide6 import QtCore
-from PySide6.QtCore import QThread, Signal
+from PySide6.QtCore import QThread, Signal, QSize, QCoreApplication
 
 from ui_design import Ui_MainWindow
 from displayImage import generateImage, addObject
 import displayParameters
+from recursiveBacktracking import Maze
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -34,47 +35,85 @@ class MainWindow(QMainWindow):
         self.show()
 
     def solveMaze(self):
-        self.ui.displayMazeLabel.setText('<p style="font-size: 11pt;">Solving maze...</font>')
         self.ui.solveMazeBtn.setEnabled(False)
 
         if self.maze is None or self.mazeMatrix is None:
-            print("Please generate a maze first.")
+            popup("Please generate a maze first","Information")
+            self.ui.solveMazeBtn.setEnabled(True)
             return
         elif self.maze_ws is None:
-            print("Maze data has been corrupted. Please regenerate maze.")
+            popup("Maze data has been corrupted.\nPlease regenerate maze.","Critical")
+            self.ui.solveMazeBtn.setEnabled(True)
             return
+
+        self.ui.displayMazeLabel.setText('<p style="font-size: 11pt;">Solving maze...</font>')
         
         self.solverWorker = solveMazeWorker(self.mazeMatrix, self.maze_ws.copy(), self.loki, self.boxWidth, self.margin, self.steps)
         self.solverWorker.start()
         self.solverWorker.response.connect(self.updateImage)
 
     def generateMaze(self):
-        self.ui.displayMazeLabel.setText('<p style="font-size:11pt;">Generating maze...</font>')
         self.ui.generateMazeBtn.setEnabled(False)
-        width = int(self.ui.width_input.text())
-        height = int(self.ui.height_input.text())
+        try:
+            width = int(self.ui.width_input.text())
+            height = int(self.ui.height_input.text())
+        except:
+            popup("Please mention width/height of maze","Information")
+            self.ui.generateMazeBtn.setEnabled(True)
+            return
+
+        if(width<3 or height<3):
+            popup("Width / Height value of maze should be atleast 3","Information")
+            self.ui.generateMazeBtn.setEnabled(True)
+            return
+
+        self.ui.displayMazeLabel.setText('<p style="font-size:11pt;">Generating maze...</font>')
 
         self.generatorWorker = generateMazeWorker(width, height)
         self.generatorWorker.start()
         self.generatorWorker.response.connect(self.updateImage)
 
-    def updateImage(self, disp_maze, fromf, lastResponse=True, mazeMatrix = None, maze=None, maze_ws=None, loki=None, boxWidth=None):
+    def updateImage(self, error, whatError, disp_maze, fromf, lastResponse=True, mazeMatrix = None, maze=None, maze_ws=None, loki=None, boxWidth=None):
         
         if fromf == "generator":
-            self.ui.generateMazeBtn.setEnabled(True)
-            self.generatorWorker.stop()
-            self.maze = maze
-            self.maze_ws = maze_ws
-            self.loki = loki
-            self.boxWidth = boxWidth
-            self.mazeMatrix = mazeMatrix
+            if error:
+                if whatError == "RecursionError":
+                    popup("Exceeded maximum maze size limit\nPlease reduce the size of maze","Critical")
+                else:
+                    popup(whatError,"Critical")
+                self.ui.generateMazeBtn.setEnabled(True)
+            else:
+                self.ui.generateMazeBtn.setEnabled(True)
+                self.generatorWorker.stop()
+                '''
+                try:
+                    if self.solverWorker:
+                        self.solverWorker.terminate()
+                        self.ui.solveMazeBtn.setEnabled(True)
+                except:
+                    pass
+                '''
+                self.maze = maze
+                self.maze_ws = maze_ws
+                self.loki = loki
+                self.boxWidth = boxWidth
+                self.mazeMatrix = mazeMatrix
         elif fromf == 'solver':
-            if lastResponse:
+            if error:
+                popup(whatError,"Critical")
                 self.ui.solveMazeBtn.setEnabled(True)
+            else:
+                if lastResponse:
+                    self.ui.solveMazeBtn.setEnabled(True)
+        
+        if disp_maze is None:
+            if self.maze is None:
+                self.ui.displayMazeLabel.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-weight:700; color:#ff79c6;\">TREASURE HUNTER</span></p></body></html>", None))
+            else:
+                disp_maze = self.maze.copy()
         
         self.disp_maze = disp_maze
         img = QImage(self.disp_maze,self.disp_maze.shape[1],self.disp_maze.shape[0],self.disp_maze.strides[0],QImage.Format_BGR888)
-
         if self.disp_maze.shape[1] <= 725 and self.disp_maze.shape[0] <= 425:
             self.ui.displayMazeLabel.setScaledContents(False)
             self.ui.displayMazeLabel.setPixmap(QPixmap(img))
@@ -87,8 +126,9 @@ class MainWindow(QMainWindow):
             self.ui.displayMazeLabel.setPixmap(QPixmap(img))
 
 
+
 class generateMazeWorker(QThread):
-    response = Signal(np.ndarray,str,bool,list,np.ndarray,np.ndarray,np.ndarray,int)
+    response = Signal(bool,str,np.ndarray,str,bool,list,np.ndarray,np.ndarray,np.ndarray,int)
 
     def __init__(self, width, height):
         super(generateMazeWorker, self).__init__()
@@ -96,22 +136,30 @@ class generateMazeWorker(QThread):
         self.height = height
     
     def run(self):
-        start = time.time()
-        # Random maze generator will be inserted below
-        ###############################################################################---v
-        from game import getMazeData
-        self.mazeMatrix = getMazeData()
-        ###############################################################################---^
-        self.maze, self.maze_ws, self.loki, self.boxWidth = generateImage(self.mazeMatrix)
-        self.response.emit(self.maze, 'generator', True, self.mazeMatrix, self.maze, self.maze_ws, self.loki, self.boxWidth)
-        end = time.time()
-        print(f"Generate Maze Time: {end-start}s")
+        try:
+            start = time.time()
+            # Random maze generator will be inserted below
+            ###############################################################################---v
+            #from game import getMazeData
+            #self.mazeMatrix = getMazeData()
+            mazeClass = Maze(self.width, self.height)
+            mazeClass.create_maze(2,2)
+            self.mazeMatrix = mazeClass.getMatrix()
+            ###############################################################################---^
+            self.maze, self.maze_ws, self.loki, self.boxWidth = generateImage(self.mazeMatrix)
+            self.response.emit(False, None, self.maze, 'generator', True, self.mazeMatrix, self.maze, self.maze_ws, self.loki, self.boxWidth)
+            end = time.time()
+            print(f"Generate Maze Time: {end-start}s")
+        except RecursionError:
+            self.response.emit(True, "RecursionError", None, "generator", None, None, None, None, None, None)
+        except Exception as e:
+            self.response.emit(True, str(e), None, "generator", None, None, None, None, None, None)
 
     def stop(self):
         self.quit()
 
 class solveMazeWorker(QThread):
-    response = Signal(np.ndarray, str, bool)
+    response = Signal(bool, str, np.ndarray, str, bool)
 
     def __init__(self, mazeMatrix, maze_ws, loki, adjustedBoxWidth, margin, steps):
         super(solveMazeWorker, self).__init__()
@@ -123,48 +171,49 @@ class solveMazeWorker(QThread):
         self.steps = steps
 
     def run(self):
-        start = time.time()
-        # BFS maze solver will be inserted below
-        ###############################################################################---v
-        from game import getPath
-        self.path = getPath()
-        ###############################################################################---^
+        try:
+            start = time.time()
+            # BFS maze solver will be inserted below
+            ###############################################################################---v
+            from game import getPath
+            self.path = getPath()
+            ###############################################################################---^
 
-        self.path_points = self.calculatePoints()
-        depth = self.margin-2
-        width = (self.boxWidth>>1)+depth
-        fmaze = None
-        floki = np.zeros((self.loki.shape[0]+(depth<<1), self.loki.shape[1]+(depth<<1), 3), np.uint8)
-        floki[depth:(depth+self.loki.shape[0]), depth:(depth+self.loki.shape[1]), :] = self.loki
-        for dir, point, dst in self.path_points:
-            shift = (dst*self.boxWidth)//self.steps
-            x, y = point
+            self.path_points = self.calculatePoints()
+            depth = self.margin-2
+            width = (self.boxWidth>>1)+depth
+            fmaze = None
+            floki = np.zeros((self.loki.shape[0]+(depth<<1), self.loki.shape[1]+(depth<<1), 3), np.uint8)
+            floki[depth:(depth+self.loki.shape[0]), depth:(depth+self.loki.shape[1]), :] = self.loki
+            for dir, point, dst in self.path_points:
+                shift = (dst*self.boxWidth)//self.steps
+                x, y = point
 
-            for i in range(self.steps):
-                if dir == 'left':
-                    x = x-shift
-                if dir == 'right':
-                    x = x+shift
-                if dir == 'up':
-                    y = y-shift
-                elif dir == 'down':
-                    y = y+shift
+                for i in range(self.steps):
+                    if dir == 'left':
+                        x = x-shift
+                    if dir == 'right':
+                        x = x+shift
+                    if dir == 'up':
+                        y = y-shift
+                    elif dir == 'down':
+                        y = y+shift
 
-                roi = self.maze[(y-width):(y+width), (x-width):(x+width), :]
-                result = addObject(roi.copy(),floki,10)
-                cv2.line(self.maze, point, (x,y), (245,117,170), 2)
-                fmaze = self.maze.copy()
-                fmaze[(y-width):(y+width), (x-width):(x+width), :] = result
+                    roi = self.maze[(y-width):(y+width), (x-width):(x+width), :]
+                    result = addObject(roi.copy(),floki,10)
+                    cv2.line(self.maze, point, (x,y), (245,117,170), 2)
+                    fmaze = self.maze.copy()
+                    fmaze[(y-width):(y+width), (x-width):(x+width), :] = result
                 
-                self.response.emit(fmaze, 'solver', False)
-                cv2.waitKey(13)
-                '''if cv2.waitKey(13) == ord(' '):
-                    if cv2.waitKey(0) == ord(' '):
-                        pass'''
-        self.response.emit(fmaze, 'solver', True)
+                    self.response.emit(False, None, fmaze, 'solver', False)
+                    cv2.waitKey(13)
+            self.response.emit(False, None, fmaze, 'solver', True)
 
-        end = time.time()
-        print(f"Solve Maze Time: {(end-start)}")
+            end = time.time()
+            print(f"Solve Maze Time: {(end-start)}")
+        except Exception as e:
+            self.response.emit(True, str(e), None, 'solver', None)
+        
         self.stop()
 
     def calculatePoints(self):
@@ -189,7 +238,27 @@ class solveMazeWorker(QThread):
         self.quit()
 
 
+def popup(message,type):
+        msg = QMessageBox()
+        icon = QIcon()
+        icon.addFile(u"img/logo.png", QSize(), QIcon.Normal, QIcon.Off)
+        msg.setWindowIcon(icon)
+        msg.setWindowTitle("Treasure Hunter")
+
+        if type == "Information":
+            msg.setIcon(QMessageBox.Information)
+        elif type == "Warning":
+            msg.setIcon(QMessageBox.Warning)
+        elif type == "Critical":
+            msg.setIcon(QMessageBox.Critical)
+        elif type == "Question":
+            msg.setIcon(QMessageBox.Question)
+        
+        msg.setText(message)
+        msg.exec()
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ui = MainWindow()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
