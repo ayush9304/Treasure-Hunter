@@ -1,36 +1,30 @@
 import sys
 import cv2
 import numpy as np
-import math
 from displayParameters import *
 
-def displayImage(arguments):
-
-    file = open(f"{arguments[1]}","r")
-    mazeData = []
-    for x in file:
-        x = x.strip()
-        x = x.split(" ")
-        mazeData.append(x)
-    file.close()
+def generateImage(mazeData, path_list=None):
 	
     m, n = len(mazeData), len(mazeData[0])
-    adjustedBoxWidth = adjustWidth(m,n)
-    if adjustedBoxWidth >= 0:
-        pass
-    else:
-        return
-    
+
+    adjustedBoxWidth = adjustBoxWidth(n, m)
+
     width = (adjustedBoxWidth * n) + (2*margin)
     height = (adjustedBoxWidth * m) + (2*margin)
 
     maze = np.zeros((height,width,3),np.uint8)
-
     pathFrame = []
 
     # Margin
-    maze = drawBoundary(width,height,maze,margin)
+    maze = drawBoundary(width,height,maze)
 
+    # Source Box data
+    s_x = None
+    s_y = None
+    s_floor = None
+    s_loki = None
+
+    to_animate = False
     x, y = margin, margin
     for row in mazeData:
         wall = -1
@@ -38,18 +32,19 @@ def displayImage(arguments):
         floor = -1
         top_floor = (top_floor+1)%2
         for value in row:
-            if value == '1':
+            if value == 1:
                 wall = (wall+1)%2
                 img = cv2.imread(f"img/walls/{wall}.png")
                 img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
             
-            elif value == '0' or value == 'P' or value == 'p':
+            elif value == 0 or value == 'P' or value == 'p':
                 floor = (floor+1)%2
                 img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
                 img = cv2.resize(img,(adjustedBoxWidth,adjustedBoxWidth))
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
                 if value == 'P' or value == 'p':
+                    to_animate = True
                     pathFrame.append(((int(x+(adjustedBoxWidth/2))),(int(y+(adjustedBoxWidth/2)))))
 
             elif value == 'S' or value == 's':
@@ -58,6 +53,14 @@ def displayImage(arguments):
                 floor = (floor+1)%2
                 l_img = cv2.imread(f"img/floor/{top_floor}{floor}.png")
                 l_img = cv2.resize(l_img,(adjustedBoxWidth,adjustedBoxWidth))
+
+                #For animation purpose (maze without loki image)---v
+                s_x = x
+                s_y = y
+                s_floor = l_img.copy()
+                s_loki = s_img.copy()
+                #--------------------------------------------------^
+
                 img = addObject(l_img,s_img,10)
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
             
@@ -69,39 +72,40 @@ def displayImage(arguments):
                 l_img = cv2.resize(l_img,(adjustedBoxWidth,adjustedBoxWidth))
 
                 img = addObject(l_img,s_img,25)
-
                 maze[y:(y+adjustedBoxWidth),x:(x+adjustedBoxWidth),:] = img
             
             x += adjustedBoxWidth
         x = margin
         y += (adjustedBoxWidth)
-    
-    # Draw Path
-    maze = drawPath(maze,pathFrame,adjustedBoxWidth)
 
-    # Display image
-    if len(arguments) >= 3:
-        cv2.imshow(f"MAZE SOLUTION USING {arguments[2]}",maze)
+    maze2 = maze.copy()
+    if s_x is not None and  s_y is not None:
+        maze2[s_y:(s_y+adjustedBoxWidth),s_x:(s_x+adjustedBoxWidth),:] = s_floor
+
+    ####################################################################################
+    if to_animate:
+        animate(maze2, s_loki, path_list, steps, adjustedBoxWidth)
+    ####################################################################################
+
     else:
-        cv2.imshow("TREASURE HUNTER",maze)
+        return maze, maze2, s_loki, adjustedBoxWidth
         
-    cv2.waitKey(0)
 
 
-def adjustWidth(m,n):
-    if m <= 12 and n <= 24:
-        adjustedBoxWidth = boxWidth
-    elif (n/m) <= 2:
-        adjustedBoxWidth = math.floor((624/m))
+def adjustBoxWidth(width, height):
+    if width >= 95 or height >= 67:
+        return int(boxWidth/2.2)
+    elif width >= 67 or height >= 50:
+        return int(boxWidth/1.78)
+    elif width >= 50 or height >= 39:
+        return int(boxWidth/1.6666)
     else:
-        adjustedBoxWidth = math.floor((1215/n))
-    return adjustedBoxWidth
+        return boxWidth
 
-
-def drawBoundary(width,height,maze,boundary):
+def drawBoundary(width,height,maze):
     left = cv2.imread("img/boundary/0.png")
     length = (left.shape[0]//left.shape[1])*10
-    left = cv2.resize(left,(boundary,length))
+    left = cv2.resize(left,(margin,length))
     top = cv2.rotate(left,cv2.ROTATE_90_CLOCKWISE)
     bottom = cv2.rotate(left,cv2.ROTATE_90_COUNTERCLOCKWISE)
     right = cv2.rotate(left,cv2.ROTATE_180)
@@ -112,25 +116,25 @@ def drawBoundary(width,height,maze,boundary):
     y=0
     for i in range(n):
         if i == n-1:
-            maze[y:(y+overflowy),0:boundary,:] = left[0:overflowy,0:boundary,:]
-            maze[y:(y+overflowy),(width-boundary):width,:] = right[0:overflowy,0:boundary,:]
+            maze[y:(y+overflowy),0:margin,:] = left[0:overflowy,0:margin,:]
+            maze[y:(y+overflowy),(width-margin):width,:] = right[0:overflowy,0:margin,:]
         else:
-            maze[y:(y+length),0:boundary,:] = left
-            maze[y:(y+length),(width-boundary):width,:] = right
+            maze[y:(y+length),0:margin,:] = left
+            maze[y:(y+length),(width-margin):width,:] = right
         y = y+length
 
     # Drawing top & bottom boundary
-    offset = boundary*.8
+    offset = margin*.8
     n = ((width-(2*offset))//length)+1
     overflowx = int((((width-(2*offset))/length)-((width-(2*offset))//length))*length)
     x=int(offset)
     for i in range(int(n)):
         if i == n-1:
-            maze[0:boundary,x:(x+overflowx),:] = top[0:boundary,0:overflowx,:]
-            maze[(height-boundary):height,x:(x+overflowx),:] = bottom[0:boundary,0:overflowx,:]
+            maze[0:margin,x:(x+overflowx),:] = top[0:margin,0:overflowx,:]
+            maze[(height-margin):height,x:(x+overflowx),:] = bottom[0:margin,0:overflowx,:]
         else:
-            maze[0:boundary,x:(x+length),:] = top
-            maze[(height-boundary):height,x:(x+length),:] = bottom
+            maze[0:margin,x:(x+length),:] = top
+            maze[(height-margin):height,x:(x+length),:] = bottom
         x = x+length
     return maze
 
@@ -150,33 +154,75 @@ def addObject(background,logo,threshold):
     background[0:height,0:width] = img
     return background
 
-def drawPath(maze,points,boxWidth):
-    #points.sort()
-    if boxWidth>30:
-        lineWidth = int(.1*boxWidth)
-    elif boxWidth>20:
-        lineWidth = int(.18*boxWidth)
-    elif boxWidth>10:
-        lineWidth = int(.25*boxWidth)
-    else:
-        lineWidth = int(.32*boxWidth)
-    for i,point in enumerate(points):
-        top = (point[0],point[1]-boxWidth)
-        bottom = (point[0],point[1]+boxWidth)
-        left = (point[0]-boxWidth,point[1])
-        right = (point[0]+boxWidth,point[1])
-        if top in points[i:]:
-            cv2.line(maze,point,top,(32,248,255),lineWidth)
-        if bottom in points[i:]:
-            cv2.line(maze,point,bottom,(32,248,255),lineWidth)
-        if left in points[i:]:
-            cv2.line(maze,point,left,(32,248,255),lineWidth)
-        if right in points[i:]:
-            cv2.line(maze,point,right,(32,248,255),lineWidth)
-    return maze
+
+def animate(maze, loki, path, steps, adjustedBoxWidth):
+    path = calculatePoints(path, adjustedBoxWidth)
+    depth = margin-2
+    width = (adjustedBoxWidth>>1)+depth
+    floki = np.zeros((loki.shape[0]+(depth<<1), loki.shape[1]+(depth<<1), 3), np.uint8)
+    floki[depth:(depth+loki.shape[0]), depth:(depth+loki.shape[1]), :] = loki
+    for dir, point, dst in path:
+        shift = (dst*adjustedBoxWidth)//steps
+        x, y = point
+
+        for i in range(steps):
+            if dir == 'left':
+                x = x-shift
+            if dir == 'right':
+                x = x+shift
+            if dir == 'up':
+                y = y-shift
+            elif dir == 'down':
+                y = y+shift
+
+            #################################
+            roi = maze[(y-width):(y+width), (x-width):(x+width), :]
+            result = addObject(roi.copy(),floki,10)
+            cv2.line(maze, point, (x,y), (245,117,170), 2)
+            fmaze = maze.copy()
+            fmaze[(y-width):(y+width), (x-width):(x+width), :] = result
+            #################################
+            cv2.imshow("TREASURE HUNTER",fmaze)
+            k = cv2.waitKey(13)
+            if k == ord('q'):
+                cv2.destroyAllWindows()
+                return
+            elif k == ord(' '):
+                l = cv2.waitKey(0)
+                if l == ord('q'):
+                    cv2.destroyAllWindows()
+                    return
+                elif l == ord(' '):
+                    pass
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+
+def calculatePoints(path, adjustedBoxWidth):
+    points = []
+    for i,point in enumerate(path):
+        x = margin + (point[0]*adjustedBoxWidth) + (adjustedBoxWidth>>1)
+        y = margin + (point[1]*adjustedBoxWidth) + (adjustedBoxWidth>>1)
+        if i<len(path)-1:
+            diff_x = point[0]-path[i+1][0]
+            diff_y = point[1]-path[i+1][1]
+            if diff_x<0 and diff_y==0:          #right
+                points.append(("right",(x,y),(-diff_x)))
+            elif diff_x>0 and diff_y==0:        #left
+                points.append(("left",(x,y),diff_x))
+            elif diff_x==0 and diff_y>0:        #up
+                points.append(("up",(x,y),diff_y))
+            elif diff_x==0 and diff_y<0:        #down
+                points.append(("down",(x,y),(-diff_y)))
+    return points
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("\nWARNING!!! Please mention Maze File Name")
     else:
-        displayImage(sys.argv)
+        img = generateImage(sys.argv)
+        cv2.namedWindow("TREASURE HUNTER")
+        cv2.imshow("TREASURE HUNTER",img)
+        cv2.waitKey(0)
