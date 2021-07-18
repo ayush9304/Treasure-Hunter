@@ -1,3 +1,5 @@
+import generate
+
 class Queue:
     def __init__(self):
         self.list = []
@@ -42,7 +44,7 @@ class Maze:
 
     def __init__(self, matrix, row, column):
         self.matrix = matrix
-        self.visited = matrix
+        self.visited = [['0'] * column for _ in range(row)]
         self.row = row
         self.column = column
 
@@ -128,20 +130,17 @@ def bfs(matrix, row, column):
 
 
 
-row = 5
-column = 5
-maze = [
-    ['S', '1', '0', '0', '0'],
-    ['0', '1', '0', '1', '0'],
-    ['0', '1', '0', '1', '0'],
-    ['0', '0', '0', '1', '0'],
-    ['1', '0', '0', '1', 'D']
-]
+row = 15
+column = 25
+maze = generate.Maze(column, row)
 
-matrix, path = bfs(maze, row, column)
+matrix = maze.matrix()
+solutionMatrix, path = bfs(matrix, row, column)
 
-for i in range(row):
-    print(matrix[i])
+for w in solutionMatrix:
+    for x in w:
+        print(x, end=" ")
+    print("")
 
 print("\n")
 
