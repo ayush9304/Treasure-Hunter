@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
             popup("Width / Height value of maze should be atleast 3","Information")
             self.ui.generateMazeBtn.setEnabled(True)
             return
-        elif(width*height > 15000):
+        elif(width*height > 6401):
             popup("Exceeded maximum maze size limit\nPlease reduce the size of maze","Information")
             self.ui.generateMazeBtn.setEnabled(True)
             return
