@@ -21,7 +21,11 @@
     - Open Command Prompt
     - Type in the following command: ``` pip3 install opencv-python ``` and press \<enter\> key
     - This will install OpenCV for Python
-- _Step 3_: **Install VSCode**
+- _Step 3_: **Install PySide**
+    - Open Command Prompt
+    - Type in the following command: ``` pip3 install PySide6 ``` and press \<enter\> key
+    - This will install PySide6
+- _Step 4_: **Install VSCode**
     - Goto [https://code.visualstudio.com/Download](https://code.visualstudio.com/Download) and download VSCode installer for windows.
     - Run the installer to install it.
     - Make sure to check all four checkboxes (see image)
@@ -30,11 +34,6 @@
     - After Installation, Open VSCode and goto *Extension* Tab and search for Python and click the first result which is developed by Microsoft (see image below) and click install
     
         <img src="https://i.ibb.co/9yZDK6b/vscode-python.png" alt="vscode-python" border="0">
-        <img src="https://i.ibb.co/4R8X7G3/vscode-cpp.png" alt="vscode-cpp" border="0">
-     
-    - Again search for C/C++ and click first result which is developed by Microsoft (see image above) and click install
-- _Step 4_: **Install MinGW C/C++ Compiler**
-    - Follow [this YouTube Tutorial](https://www.youtube.com/watch?v=sXW2VLrQ3Bs) to install MinGW Compiler.
 
 
 ### MacOS
@@ -46,35 +45,30 @@
     - Open Terminal
     - Type in the following command: ``` pip3 install opencv-python ``` and press \<enter\> key
     - This will install OpenCV for Python
-- _Step 2_: **Install VSCode**
+- _Step 3_: **Install PySide**
+    - Open Terminal
+    - Type in the following command: ``` pip3 install PySide6 ``` and press \<enter\> key
+    - This will install PySide6
+- _Step 4_: **Install VSCode**
     - Goto [https://code.visualstudio.com/Download](https://code.visualstudio.com/Download) and download VSCode installer for macOS.
     - Run the installer to install it.
-    - After Installation, Follow the ***4th & 5th point for Installing VSCode in Windows*** section
-- _Step 3_: **Install MinGW C/C++ Compiler**
-    - Goto [https://brew.sh](https://brew.sh) and copy the link (see image), paste it in the terminal and run it to install Homebrew Package manager.
-    
-      <img src="https://i.ibb.co/jHC8xCz/mac-mingw.png" alt="mac-mingw" border="0">
-      
-    - Then type the following command ```brew install mingw-w64``` in the terminal and press \<enter\> key to install MinGW C/C++ Compiler.
+    - After Installation, Follow the ***4th point for Installing VSCode in Windows*** section
 
 
 
 ## File Structure
 
    - `img` - Directory in which image files that are used in this project are stored
-   - `maze` - Directory in which maze files are stored
-   - `mazeSolution` - Directory in which solutions of maze puzzles will be stored
-        - `bfs` - Directory in which solutions of maze puzzles solved using **BFS algorithm** will be stored
    - `.gitignore` - File that contains names of directories, files & file types that will not be uploaded to github
+   - `Collaborators.md` - File contains list of all collaborators in this project.
    - `README.md` - File that introduces the project to viewers
-   - `bfs.cpp` - C++ program that solves the maze puzzle using **BFS algorithm**
+   - `bfs.py` - Python program that solves the maze puzzle using **BFS algorithm**
    - `displayImage.py` - Python program to show the graphical representation of maze
    - `displayParameters.py` - Python program that contains various parameters on how to show the maze
-   - `launcher.cmd` - Batch file to run this application on **Windows OS**<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&emsp;&emsp;&emsp;&emsp; _It takes one argument 'filename' of the maze that we want to solve which is inside ```maze``` directory_
-   - `launcher_mac.command` - Shell script to run this application on **macOS**<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&emsp;&emsp;&emsp;&emsp; _It takes one argument 'filename' of the maze that we want to solve which is inside ```maze``` directory_
-   - `test.cpp` - It's just a test file. **NO USE**  in this project
+   - `mazeGenerator.py` - Python program to generate random maze of give size
+   - `main.py` - Main Python Program to run the application
+   - `ui_design.py` - Python file that contains basic structure for Graphical User Interface
+   - `ui_design.ui` - Raw XML file for GUI
 
 
 ## Contributing Guide
@@ -104,8 +98,7 @@
 
    - _For Windows OS_: 
         - Open Command prompt, navigate to project directory using `cd` command
-        - Type `launcher.cmd <maze_filename>` (e.g, `launcher.cmd maze1.txt`)
+        - Type `py main.py`
    - _For macOS_: 
         - Open Terminal, navigate to project directory using `cd` command
-        - Type `chmod +x launcher_mac.command` to give the script file permission to run
-        - Type `./launcher_mac.command <maze_filename>` (e.g, `launcher_mac.command maze1.txt`)
+        - Type `python3 ./main.py`
