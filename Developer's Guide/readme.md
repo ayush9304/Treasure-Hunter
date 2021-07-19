@@ -17,7 +17,7 @@
       
       <img src="https://i.ibb.co/THkmfVP/python-installer.png" alt="python-installer" border="0">
       
-- _Step 2_: **Install OpenCV for Python**
+- _Step 2_: **Install Python dependencies**
     - Open Command Prompt
     - Type in the following command: ``` pip3 install -r requirements.txt ``` and press \<enter\> key
     - This will install all the Python dependencies for this project
@@ -37,7 +37,7 @@
 - _Step 1_: **Install Python**
     - Goto [https://www.python.org/downloads/](https://www.python.org/downloads/) of the official Python website.
     - Download the python installer for macOS and install it.
-- _Step 2_: **Install OpenCV for Python**
+- _Step 2_: **Install Python dependencies**
     - Open Terminal
     - Type in the following command: ``` pip3 install -r requirements.txt ``` and press \<enter\> key
     - This will install all the Python dependencies for this project
