@@ -13,14 +13,24 @@ Treasure Hunter is maze solving application written in Python. This app randomly
         <img src="https://i.ibb.co/2qL141J/python-installer.png" alt="python-installer" border="0">
       
 - **Get the code**
-  - ```git clone https://github.com/ayush9304/Treasure-Hunter```
+  ```
+  git clone https://github.com/ayush9304/Treasure-Hunter
+  ```
       
 - **Install Python dependencies**
-    - ``` pip3 install -r requirements.txt ```
+    ```
+    pip3 install -r requirements.txt
+    ```
 
 - **Run the application**
-    - ```py main.py``` (for windows)
-    - ```python3 ./main.py``` (for mac/linux)
+    - For Windows
+      ```
+      py main.py
+      ```
+    - For Mac/Linux
+      ```
+      python3 ./main.py
+      ```
 
 ## License
 
