@@ -19,13 +19,9 @@
       
 - _Step 2_: **Install OpenCV for Python**
     - Open Command Prompt
-    - Type in the following command: ``` pip3 install opencv-python ``` and press \<enter\> key
-    - This will install OpenCV for Python
-- _Step 3_: **Install PySide**
-    - Open Command Prompt
-    - Type in the following command: ``` pip3 install PySide6 ``` and press \<enter\> key
-    - This will install PySide6
-- _Step 4_: **Install VSCode**
+    - Type in the following command: ``` pip3 install -r requirements.txt ``` and press \<enter\> key
+    - This will install all the Python dependencies for this project
+- _Step 3_: **Install VSCode**
     - Goto [https://code.visualstudio.com/Download](https://code.visualstudio.com/Download) and download VSCode installer for windows.
     - Run the installer to install it.
     - Make sure to check all four checkboxes (see image)
@@ -43,12 +39,8 @@
     - Download the python installer for macOS and install it.
 - _Step 2_: **Install OpenCV for Python**
     - Open Terminal
-    - Type in the following command: ``` pip3 install opencv-python ``` and press \<enter\> key
-    - This will install OpenCV for Python
-- _Step 3_: **Install PySide**
-    - Open Terminal
-    - Type in the following command: ``` pip3 install PySide6 ``` and press \<enter\> key
-    - This will install PySide6
+    - Type in the following command: ``` pip3 install -r requirements.txt ``` and press \<enter\> key
+    - This will install all the Python dependencies for this project
 - _Step 4_: **Install VSCode**
     - Goto [https://code.visualstudio.com/Download](https://code.visualstudio.com/Download) and download VSCode installer for macOS.
     - Run the installer to install it.
@@ -66,6 +58,7 @@
    - `displayImage.py` - Python program to show the graphical representation of maze
    - `displayParameters.py` - Python program that contains various parameters on how to show the maze
    - `mazeGenerator.py` - Python program to generate random maze of give size
+   - `requirements.txt` - File that contains list of all Python dependencies
    - `main.py` - Main Python Program to run the application
    - `ui_design.py` - Python file that contains basic structure for Graphical User Interface
    - `ui_design.ui` - Raw XML file for GUI
