@@ -15,7 +15,7 @@
     - Download the python installer for Windows and run it
     - Make sure to check the "_Add Python 3.x to PATH_" checkbox (see image)
       
-      <img src="https://i.ibb.co/THkmfVP/python-installer.png" alt="python-installer" border="0">
+      <img src="https://i.ibb.co/2qL141J/python-installer.png" alt="python-installer" border="0">
       
 - _Step 2_: **Install Python dependencies**
     - Open Command Prompt
