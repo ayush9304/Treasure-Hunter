@@ -2,7 +2,7 @@
 Treasure Hunter is maze solving application written in Python. This app randomly creates and visualises the maze of the given dimensions and solves it using **BFS** algorithm.
 
 
-<img src="img/treasure-hunter.png" alt="treasure-hunter" border="0">
+<img src="img/treasure-hunter_small.png" alt="treasure-hunter" border="0">
 
 ## Getting Started
 
