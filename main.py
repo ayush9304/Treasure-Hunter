@@ -57,8 +57,8 @@ class MainWindow(QMainWindow):
         self.displayTurn = "solver"
         self.solverWorker.response.connect(self.updateImage)
         try:
+            self.generatorWorker.stopFlag = True
             self.generatorWorker.quit()
-            self.ui.generateMazeBtn.setEnabled(True)
         except:
             pass
 
@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
         self.generatorWorker.response.connect(self.updateImage)
         try:
             self.solverWorker.stopFlag = True
-            self.ui.solveMazeBtn.setEnabled(True)
+            self.solverWorker.stop()
         except:
             pass
 
