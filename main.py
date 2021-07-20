@@ -34,6 +34,8 @@ class MainWindow(QMainWindow):
         self.margin = displayParameters.margin
         self.steps = displayParameters.steps
 
+        self.displayTurn = None
+
         self.show()
 
     def solveMaze(self):
@@ -52,7 +54,13 @@ class MainWindow(QMainWindow):
         
         self.solverWorker = solveMazeWorker(self.mazeMatrix, self.maze_ws.copy(), self.loki, self.boxWidth, self.margin, self.steps)
         self.solverWorker.start()
+        self.displayTurn = "solver"
         self.solverWorker.response.connect(self.updateImage)
+        try:
+            self.generatorWorker.quit()
+            self.ui.generateMazeBtn.setEnabled(True)
+        except:
+            pass
 
     def generateMaze(self):
         self.ui.generateMazeBtn.setEnabled(False)
@@ -68,16 +76,28 @@ class MainWindow(QMainWindow):
             popup("Width / Height value of maze should be atleast 3","Information")
             self.ui.generateMazeBtn.setEnabled(True)
             return
-        elif(width*height > 6401):
-            popup("Exceeded maximum maze size limit\nPlease reduce the size of maze","Information")
-            self.ui.generateMazeBtn.setEnabled(True)
-            return
+        elif(width*height > 6400):
+            if sys.platform != 'win32':
+                popup("Exceeded maximum maze size limit\nPlease reduce the size of maze","Information")
+                self.ui.generateMazeBtn.setEnabled(True)
+                return
+            else:
+                if (width*height > 16000):
+                    popup("Exceeded maximum maze size limit\nPlease reduce the size of maze","Information")
+                    self.ui.generateMazeBtn.setEnabled(True)
+                    return
 
         self.ui.displayMazeLabel.setText('<p style="font-size:11pt;">Generating maze...</font>')
 
         self.generatorWorker = generateMazeWorker(width, height)
         self.generatorWorker.start()
+        self.displayTurn = "generator"
         self.generatorWorker.response.connect(self.updateImage)
+        try:
+            self.solverWorker.stopFlag = True
+            self.ui.solveMazeBtn.setEnabled(True)
+        except:
+            pass
 
     def updateImage(self, error, whatError, disp_maze, fromf, lastResponse=True, mazeMatrix = None, maze=None, maze_ws=None, loki=None, boxWidth=None):
         
@@ -87,12 +107,13 @@ class MainWindow(QMainWindow):
                 self.ui.generateMazeBtn.setEnabled(True)
             else:
                 self.ui.generateMazeBtn.setEnabled(True)
-                self.generatorWorker.stop()
+                #self.generatorWorker.stop()
                 
                 try:
-                    if self.solverWorker:
-                        self.solverWorker.stopFlag = True
-                        self.ui.solveMazeBtn.setEnabled(True)
+                    if self.displayTurn == "generator":
+                        if self.solverWorker:
+                            self.solverWorker.stopFlag = True
+                            self.ui.solveMazeBtn.setEnabled(True)
                 except:
                     pass
                 
@@ -106,6 +127,15 @@ class MainWindow(QMainWindow):
                 popup(whatError,"Information")
                 self.ui.solveMazeBtn.setEnabled(True)
             else:
+
+                try:
+                    if self.displayTurn == "solver":
+                        if self.generatorWorker:
+                            self.generatorWorker.stopFlag = True
+                            self.ui.generateMazeBtn.setEnabled(True)
+                except:
+                    pass
+
                 if lastResponse:
                     self.ui.solveMazeBtn.setEnabled(True)
         
@@ -117,19 +147,27 @@ class MainWindow(QMainWindow):
                     disp_maze = self.maze.copy()
             else:
                 disp_maze = self.disp_maze.copy()
-        
-        self.disp_maze = disp_maze
-        img = QImage(self.disp_maze,self.disp_maze.shape[1],self.disp_maze.shape[0],self.disp_maze.strides[0],QImage.Format_BGR888)
-        if self.disp_maze.shape[1] <= 725 and self.disp_maze.shape[0] <= 425:
-            self.ui.displayMazeLabel.setScaledContents(False)
-            self.ui.displayMazeLabel.setPixmap(QPixmap(img))
-        elif 1.4006 <= (self.disp_maze.shape[1]/self.disp_maze.shape[0]) <= 2.133:
-            self.ui.displayMazeLabel.setScaledContents(True)
-            self.ui.displayMazeLabel.setPixmap(QPixmap(img))
         else:
-            self.ui.displayMazeLabel.setScaledContents(False)
-            img = img.scaled(951,581,QtCore.Qt.KeepAspectRatio)
-            self.ui.displayMazeLabel.setPixmap(QPixmap(img))
+            if self.displayTurn == fromf:
+                self.disp_maze = disp_maze
+                img = QImage(self.disp_maze,self.disp_maze.shape[1],self.disp_maze.shape[0],self.disp_maze.strides[0],QImage.Format_BGR888)
+                if self.disp_maze.shape[1] <= 725 and self.disp_maze.shape[0] <= 425:
+                    self.ui.displayMazeLabel.setScaledContents(False)
+                    self.ui.displayMazeLabel.setPixmap(QPixmap(img))
+                elif 1.4006 <= (self.disp_maze.shape[1]/self.disp_maze.shape[0]) <= 2.133:
+                    self.ui.displayMazeLabel.setScaledContents(True)
+                    self.ui.displayMazeLabel.setPixmap(QPixmap(img))
+                else:
+                    self.ui.displayMazeLabel.setScaledContents(False)
+                    img = img.scaled(951,581,QtCore.Qt.KeepAspectRatio)
+                    self.ui.displayMazeLabel.setPixmap(QPixmap(img))
+            else:
+                if self.displayTurn == "generator":
+                    self.ui.displayMazeLabel.setText('<p style="font-size:11pt;">Generating maze...</font>')
+                elif self.displayTurn == "solver":
+                    self.ui.displayMazeLabel.setText('<p style="font-size: 11pt;">Solving maze...</font>')
+                else:
+                    self.ui.displayMazeLabel.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-weight:700; color:#ff79c6;\">TREASURE HUNTER</span></p></body></html>", None))
 
 
 
@@ -140,6 +178,7 @@ class generateMazeWorker(QThread):
         super(generateMazeWorker, self).__init__()
         self.width = width
         self.height = height
+        self.stopFlag = False
     
     def run(self):
         try:
@@ -149,9 +188,12 @@ class generateMazeWorker(QThread):
             
             mazeClass = mazeGenerator.Maze(self.width, self.height)
             self.mazeMatrix = mazeClass.matrix()
-            
-            self.maze, self.maze_ws, self.loki, self.boxWidth = generateImage(self.mazeMatrix)
-            self.response.emit(False, None, self.maze, 'generator', True, self.mazeMatrix, self.maze, self.maze_ws, self.loki, self.boxWidth)
+            if not self.stopFlag:
+                self.maze, self.maze_ws, self.loki, self.boxWidth = generateImage(self.mazeMatrix)
+                self.response.emit(False, None, self.maze, 'generator', True, self.mazeMatrix, self.maze, self.maze_ws, self.loki, self.boxWidth)
+            else:
+                pass
+            self.stop()
         except Exception as e:
             self.response.emit(True, str(e), None, "generator", None, None, None, None, None, None)
 
@@ -213,9 +255,9 @@ class solveMazeWorker(QThread):
                                 self.response.emit(False, None, fmaze, 'solver', False)
                                 cv2.waitKey(self.delay)
                             else:
-                                return
+                                break
                     else:
-                        return
+                        break
             
             if not self.stopFlag:
                 self.response.emit(False, None, fmaze, 'solver', True)
