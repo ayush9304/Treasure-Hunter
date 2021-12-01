@@ -25,11 +25,11 @@ Treasure Hunter is maze solving application written in Python. This app randomly
 - **Run the application**
     - For Windows
       ```
-      py main.py
+      py main.pyw
       ```
     - For Mac/Linux
       ```
-      python3 ./main.py
+      python3 ./main.pyw
       ```
 
 ## License
