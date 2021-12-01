@@ -91,7 +91,7 @@
 
    - _For Windows OS_: 
         - Open Command prompt, navigate to project directory using `cd` command
-        - Type `py main.py`
+        - Type `py main.pyw`
    - _For macOS_: 
         - Open Terminal, navigate to project directory using `cd` command
-        - Type `python3 ./main.py`
+        - Type `python3 ./main.pyw`
